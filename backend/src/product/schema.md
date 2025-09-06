@@ -9,7 +9,12 @@ The Product API provides endpoints for managing products in the EcoFinds marketp
 ```
 
 ## Authentication
-All endpoints except `GET /api/products` and `GET /api/products/:id` require JWT authentication with the following headers:
+Most endpoints except the following public endpoints require JWT authentication:
+- `GET /api/products` - Public product listing
+- `GET /api/products/:id` - Public product details  
+- `GET /api/products/by-user/:userId` - Public user products listing
+
+All other endpoints require the following headers:
 ```
 Authorization: Bearer <jwt_token>
 ```
@@ -17,6 +22,25 @@ Authorization: Bearer <jwt_token>
 ## Endpoints
 
 ### 1. Get All Products
+**GET** `/api/products`
+
+### 2. Get Product by ID  
+**GET** `/api/products/:id`
+
+### 3. Create Product
+**POST** `/api/products`
+
+### 4. Update Product
+**PUT** `/api/products/:id`
+
+### 5. Delete Product
+**DELETE** `/api/products/:id`
+
+### 6. Get My Products
+**GET** `/api/products/my-products`
+
+### 7. Get Products by User
+**GET** `/api/products/by-user/:userId`
 **GET** `/api/products`
 
 Retrieve a paginated list of products with optional filtering.
@@ -419,6 +443,186 @@ Authorization: Bearer <jwt_token>
 }
 ```
 
+### 6. Get My Products
+**GET** `/api/products/my-products`
+
+Get all products listed by the currently authenticated user. This endpoint allows users to view and manage their own product listings.
+
+#### Authentication
+Requires JWT authentication with USER or ADMIN role.
+
+#### Query Parameters
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `page` | number | No | 1 | Page number for pagination |
+| `limit` | number | No | 10 | Number of items per page |
+| `category` | string | No | - | Filter by product category |
+| `minPrice` | number | No | - | Minimum price filter |
+| `maxPrice` | number | No | - | Maximum price filter |
+| `isActive` | boolean | No | - | Filter by active status (if not provided, shows both active and inactive) |
+| `search` | string | No | - | Search in product title and description |
+| `condition` | string | No | - | Filter by product condition |
+| `brand` | string | No | - | Filter by brand |
+
+#### Example Request
+```http
+GET /api/products/my-products?page=1&limit=10&category=Electronics&isActive=true
+Authorization: Bearer <jwt_token>
+```
+
+#### Response Schema
+```json
+{
+  "status": "success",
+  "message": "Your products retrieved successfully",
+  "products": [
+    {
+      "id": "string",
+      "title": "string",
+      "category": "string",
+      "description": "string",
+      "price": "number",
+      "quantity": "number",
+      "condition": "string",
+      "yearOfManufacture": "number | null",
+      "brand": "string | null",
+      "model": "string | null",
+      "dimensionLength": "number | null",
+      "dimensionWidth": "number | null",
+      "dimensionHeight": "number | null",
+      "weight": "number | null",
+      "material": "string | null",
+      "color": "string | null",
+      "originalPackaging": "boolean",
+      "manualIncluded": "boolean",
+      "workingConditionDesc": "string | null",
+      "thumbnail": "string | null",
+      "images": "string[]",
+      "stock": "number",
+      "isActive": "boolean",
+      "isApproved": "boolean",
+      "createdAt": "string (ISO date)",
+      "updatedAt": "string (ISO date)",
+      "seller": {
+        "id": "string",
+        "name": "string",
+        "email": "string",
+        "avatar": "string | null"
+      },
+      "averageRating": "number",
+      "reviewCount": "number"
+    }
+  ],
+  "pagination": {
+    "page": "number",
+    "limit": "number",
+    "total": "number",
+    "totalPages": "number",
+    "hasNext": "boolean",
+    "hasPrev": "boolean"
+  }
+}
+```
+
+#### Error Response
+```json
+{
+  "status": "error",
+  "message": "Unauthorized - JWT token required"
+}
+```
+
+### 7. Get Products by User
+**GET** `/api/products/by-user/:userId`
+
+Get all active products listed by a specific user. This is a public endpoint useful for viewing another user's product listings, such as on their profile page.
+
+#### Path Parameters
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `userId` | string | Yes | User ID whose products to retrieve |
+
+#### Query Parameters
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `page` | number | No | 1 | Page number for pagination |
+| `limit` | number | No | 10 | Number of items per page |
+| `category` | string | No | - | Filter by product category |
+| `minPrice` | number | No | - | Minimum price filter |
+| `maxPrice` | number | No | - | Maximum price filter |
+| `search` | string | No | - | Search in product title and description |
+| `condition` | string | No | - | Filter by product condition |
+| `brand` | string | No | - | Filter by brand |
+
+**Note**: This endpoint only returns active products (`isActive: true`) for public viewing.
+
+#### Example Request
+```http
+GET /api/products/by-user/clm123abc456?page=1&limit=10&category=Electronics&minPrice=100&maxPrice=500
+```
+
+#### Response Schema
+```json
+{
+  "status": "success",
+  "message": "Products retrieved successfully",
+  "products": [
+    {
+      "id": "string",
+      "title": "string",
+      "category": "string",
+      "description": "string",
+      "price": "number",
+      "quantity": "number",
+      "condition": "string",
+      "yearOfManufacture": "number | null",
+      "brand": "string | null",
+      "model": "string | null",
+      "dimensionLength": "number | null",
+      "dimensionWidth": "number | null",
+      "dimensionHeight": "number | null",
+      "weight": "number | null",
+      "material": "string | null",
+      "color": "string | null",
+      "originalPackaging": "boolean",
+      "manualIncluded": "boolean",
+      "workingConditionDesc": "string | null",
+      "thumbnail": "string | null",
+      "images": "string[]",
+      "stock": "number",
+      "isActive": "boolean",
+      "isApproved": "boolean",
+      "createdAt": "string (ISO date)",
+      "updatedAt": "string (ISO date)",
+      "seller": {
+        "id": "string",
+        "name": "string",
+        "email": "string",
+        "avatar": "string | null"
+      },
+      "averageRating": "number",
+      "reviewCount": "number"
+    }
+  ],
+  "pagination": {
+    "page": "number",
+    "limit": "number",
+    "total": "number",
+    "totalPages": "number",
+    "hasNext": "boolean",
+    "hasPrev": "boolean"
+  }
+}
+```
+
+#### Error Response
+```json
+{
+  "status": "error",
+  "message": "Failed to retrieve products"
+}
+```
+
 ## Error Codes
 
 | Status Code | Description |
@@ -521,3 +725,6 @@ Authorization: Bearer <jwt_token>
 5. **Search**: The search functionality is case-insensitive and searches both title and description fields
 6. **Pagination**: Default pagination is 10 items per page, maximum recommended is 100
 7. **Price Handling**: Prices are stored as Decimal type in the database for precision
+8. **My Products Endpoint**: `/my-products` automatically filters by the authenticated user's ID for security
+9. **Public User Products**: `/by-user/:userId` only shows active products for public viewing
+10. **Product Visibility**: Inactive products are only visible to their owners via the `/my-products` endpoint
