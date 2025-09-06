@@ -113,6 +113,7 @@ export class ProductController {
     @Query('sellerId') sellerId?: string,
     @Query('isActive') isActive?: string,
     @Query('search') search?: string,
+    @Query('keywords') keywords?: string,
     @Query('condition') condition?: string,
     @Query('brand') brand?: string,
     @Query('page') page?: string,
@@ -125,6 +126,7 @@ export class ProductController {
       sellerId,
       isActive: isActive ? isActive === 'true' : undefined,
       search,
+      keywords,
       condition,
       brand,
     };
@@ -148,6 +150,7 @@ export class ProductController {
     @Query('maxPrice') maxPrice?: string,
     @Query('isActive') isActive?: string,
     @Query('search') search?: string,
+    @Query('keywords') keywords?: string,
     @Query('condition') condition?: string,
     @Query('brand') brand?: string,
     @Query('page') page?: string,
@@ -162,6 +165,7 @@ export class ProductController {
       sellerId: userId, // Force sellerId to be the current user
       isActive: isActive ? isActive === 'true' : undefined,
       search,
+      keywords,
       condition,
       brand,
     };
@@ -196,6 +200,7 @@ export class ProductController {
     @Query('minPrice') minPrice?: string,
     @Query('maxPrice') maxPrice?: string,
     @Query('search') search?: string,
+    @Query('keywords') keywords?: string,
     @Query('condition') condition?: string,
     @Query('brand') brand?: string,
     @Query('page') page?: string,
@@ -210,6 +215,7 @@ export class ProductController {
       sellerId: userId, // Filter by the specified user ID
       isActive: true, // Only show active products for public viewing
       search,
+      keywords,
       condition,
       brand,
     };

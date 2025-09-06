@@ -56,12 +56,13 @@ Retrieve a paginated list of products with optional filtering.
 | `sellerId` | string | No | - | Filter by seller ID |
 | `isActive` | boolean | No | true | Filter by active status |
 | `search` | string | No | - | Search in product title and description |
+| `keywords` | string | No | - | Search specifically in product title only |
 | `condition` | string | No | - | Filter by product condition |
 | `brand` | string | No | - | Filter by brand |
 
 #### Example Request
 ```http
-GET /api/products?page=1&limit=10&category=Electronics&minPrice=100&maxPrice=500&search=laptop&condition=Used&brand=Apple
+GET /api/products?page=1&limit=10&category=Electronics&minPrice=100&maxPrice=500&search=laptop&keywords=MacBook&condition=Used&brand=Apple
 ```
 
 #### Response Schema
@@ -461,12 +462,13 @@ Requires JWT authentication with USER or ADMIN role.
 | `maxPrice` | number | No | - | Maximum price filter |
 | `isActive` | boolean | No | - | Filter by active status (if not provided, shows both active and inactive) |
 | `search` | string | No | - | Search in product title and description |
+| `keywords` | string | No | - | Search specifically in product title only |
 | `condition` | string | No | - | Filter by product condition |
 | `brand` | string | No | - | Filter by brand |
 
 #### Example Request
 ```http
-GET /api/products/my-products?page=1&limit=10&category=Electronics&isActive=true
+GET /api/products/my-products?page=1&limit=10&category=Electronics&keywords=MacBook&isActive=true
 Authorization: Bearer <jwt_token>
 ```
 
@@ -551,6 +553,7 @@ Get all active products listed by a specific user. This is a public endpoint use
 | `minPrice` | number | No | - | Minimum price filter |
 | `maxPrice` | number | No | - | Maximum price filter |
 | `search` | string | No | - | Search in product title and description |
+| `keywords` | string | No | - | Search specifically in product title only |
 | `condition` | string | No | - | Filter by product condition |
 | `brand` | string | No | - | Filter by brand |
 
@@ -558,7 +561,7 @@ Get all active products listed by a specific user. This is a public endpoint use
 
 #### Example Request
 ```http
-GET /api/products/by-user/clm123abc456?page=1&limit=10&category=Electronics&minPrice=100&maxPrice=500
+GET /api/products/by-user/clm123abc456?page=1&limit=10&category=Electronics&keywords=MacBook&minPrice=100&maxPrice=500
 ```
 
 #### Response Schema
@@ -723,8 +726,10 @@ GET /api/products/by-user/clm123abc456?page=1&limit=10&category=Electronics&minP
 3. **Product Approval**: All products are automatically approved (`isApproved: true`) upon creation
 4. **Soft Delete**: Products are hard deleted from the database
 5. **Search**: The search functionality is case-insensitive and searches both title and description fields
-6. **Pagination**: Default pagination is 10 items per page, maximum recommended is 100
-7. **Price Handling**: Prices are stored as Decimal type in the database for precision
-8. **My Products Endpoint**: `/my-products` automatically filters by the authenticated user's ID for security
-9. **Public User Products**: `/by-user/:userId` only shows active products for public viewing
-10. **Product Visibility**: Inactive products are only visible to their owners via the `/my-products` endpoint
+6. **Keywords**: The keywords functionality is case-insensitive and searches only in product title for more targeted results
+7. **Search vs Keywords**: You can use both `search` and `keywords` together - they will be combined with AND logic
+8. **Pagination**: Default pagination is 10 items per page, maximum recommended is 100
+9. **Price Handling**: Prices are stored as Decimal type in the database for precision
+10. **My Products Endpoint**: `/my-products` automatically filters by the authenticated user's ID for security
+11. **Public User Products**: `/by-user/:userId` only shows active products for public viewing
+12. **Product Visibility**: Inactive products are only visible to their owners via the `/my-products` endpoint
