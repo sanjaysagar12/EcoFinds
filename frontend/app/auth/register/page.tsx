@@ -58,9 +58,15 @@ export default function RegisterPage() {
 
       if (response.ok) {
         const data = await response.json();
-        setSuccess('Account created successfully! Redirecting to login...');
+        
+        // Store the token immediately upon successful registration
+        if (data.access_token) {
+          localStorage.setItem('auth_token', data.access_token);
+        }
+        
+        setSuccess('Account created successfully! Redirecting to your profile...');
         setTimeout(() => {
-          router.push('/auth/login');
+          router.push('/profile');
         }, 2000);
       } else {
         const errorData = await response.json();

@@ -31,8 +31,8 @@ export class AuthController {
             if (!registerDto.password) {
                 throw new BadRequestException('Password is required');
             }
-            if (!registerDto.username) {
-                throw new BadRequestException('Username is required');
+            if (!registerDto.name) {
+                throw new BadRequestException('Name is required');
             }
 
             const result = await this.authService.register(registerDto);
