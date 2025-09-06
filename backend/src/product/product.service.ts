@@ -15,9 +15,147 @@ export interface PaginationOptions {
   limit?: number;
 }
 
+export interface CreateProductData {
+  title: string;
+  category: string;
+  description: string;
+  price: number;
+  quantity: number;
+  condition: string;
+  yearOfManufacture?: number;
+  brand?: string;
+  model?: string;
+  dimensionLength?: number;
+  dimensionWidth?: number;
+  dimensionHeight?: number;
+  weight?: number;
+  material?: string;
+  color?: string;
+  originalPackaging?: boolean;
+  manualIncluded?: boolean;
+  workingConditionDesc?: string;
+  thumbnail?: string;
+  images?: string[];
+  stock?: number;
+  isActive?: boolean;
+  sellerId: string;
+}
+
+export interface UpdateProductData {
+  title?: string;
+  category?: string;
+  description?: string;
+  price?: number;
+  quantity?: number;
+  condition?: string;
+  yearOfManufacture?: number;
+  brand?: string;
+  model?: string;
+  dimensionLength?: number;
+  dimensionWidth?: number;
+  dimensionHeight?: number;
+  weight?: number;
+  material?: string;
+  color?: string;
+  originalPackaging?: boolean;
+  manualIncluded?: boolean;
+  workingConditionDesc?: string;
+  thumbnail?: string;
+  images?: string[];
+  stock?: number;
+  isActive?: boolean;
+}
+
 @Injectable()
 export class ProductService {
   constructor(private prisma: PrismaService) {}
+
+  async createProduct(productData: CreateProductData) {
+    return await this.prisma.product.create({
+      data: {
+        title: productData.title,
+        category: productData.category,
+        description: productData.description,
+        price: productData.price,
+        quantity: productData.quantity,
+        condition: productData.condition,
+        yearOfManufacture: productData.yearOfManufacture,
+        brand: productData.brand,
+        model: productData.model,
+        dimensionLength: productData.dimensionLength,
+        dimensionWidth: productData.dimensionWidth,
+        dimensionHeight: productData.dimensionHeight,
+        weight: productData.weight,
+        material: productData.material,
+        color: productData.color,
+        originalPackaging: productData.originalPackaging ?? false,
+        manualIncluded: productData.manualIncluded ?? false,
+        workingConditionDesc: productData.workingConditionDesc,
+        thumbnail: productData.thumbnail,
+        images: productData.images || [],
+        stock: productData.stock ?? 0,
+        isActive: productData.isActive ?? true,
+        sellerId: productData.sellerId,
+      },
+      include: {
+        seller: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatar: true
+          }
+        }
+      }
+    });
+  }
+
+  async updateProduct(productId: string, sellerId: string, updateData: UpdateProductData) {
+    // First check if the product exists and belongs to the seller
+    const existingProduct = await this.prisma.product.findFirst({
+      where: {
+        id: productId,
+        sellerId: sellerId
+      }
+    });
+
+    if (!existingProduct) {
+      throw new Error('Product not found or you are not authorized to update this product');
+    }
+
+    return await this.prisma.product.update({
+      where: { id: productId },
+      data: updateData,
+      include: {
+        seller: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatar: true
+          }
+        }
+      }
+    });
+  }
+
+  async deleteProduct(productId: string, sellerId: string) {
+    // First check if the product exists and belongs to the seller
+    const existingProduct = await this.prisma.product.findFirst({
+      where: {
+        id: productId,
+        sellerId: sellerId
+      }
+    });
+
+    if (!existingProduct) {
+      throw new Error('Product not found or you are not authorized to delete this product');
+    }
+
+    return await this.prisma.product.delete({
+      where: { id: productId }
+    });
+  }
 
   async getAllProducts(filters: ProductFilters = {}, pagination: PaginationOptions = {}) {
     const { page = 1, limit = 10 } = pagination;

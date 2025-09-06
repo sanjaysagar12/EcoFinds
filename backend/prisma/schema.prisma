@@ -34,12 +34,37 @@ enum Role {
 
 model Product {
   id          String      @id @default(cuid())
-  name        String
-  description String      @db.Text
-  image       String?     
-  price       Decimal     @db.Decimal(10, 2)
-  stock       Int         @default(0)
-  category    String?     // "Electronics", "Books", "Clothing", etc.
+  title       String      // Product Title
+  category    String      // Product Category (required now)
+  description String      @db.Text // Product Description
+  price       Decimal     @db.Decimal(10, 2) // Price
+  
+  // Basic Details
+  quantity    Int         @default(1) // Quantity
+  condition   String      // Condition (New, Used, Refurbished, etc.)
+  yearOfManufacture Int?  // Year of Manufacture (optional)
+  brand       String?     // Brand
+  model       String?     // Model
+  
+  // Physical Properties
+  dimensionLength  Float?  // Length in cm
+  dimensionWidth   Float?  // Width in cm
+  dimensionHeight  Float?  // Height in cm
+  weight          Float?  // Weight in kg
+  material        String? // Material
+  color           String? // Color
+  
+  // Additional Info
+  originalPackaging     Boolean @default(false) // Original Packaging
+  manualIncluded        Boolean @default(false) // Manual/Instructions Included
+  workingConditionDesc  String? @db.Text        // Working Condition Description
+  
+  // Images
+  thumbnail   String?     // Main/featured image
+  images      String[]    // Array of image URLs
+  
+  // System fields
+  stock       Int         @default(0)  // Different from quantity - this is inventory
   isActive    Boolean     @default(true)
   isApproved  Boolean     @default(true)  // Admin can approve/reject products
   
@@ -57,6 +82,8 @@ model Product {
   @@index([category])
   @@index([isActive])
   @@index([isApproved])
+  @@index([condition])
+  @@index([brand])
 }
 
 model Order {
