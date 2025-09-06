@@ -202,53 +202,15 @@ export default function CartPage() {
   const handleCheckout = async () => {
     if (!cart || cart.items.length === 0) return;
 
-    setIsCheckingOut(true);
-
-    try {
-      const token = localStorage.getItem('auth_token');
-      if (!token) {
-        router.push('/auth/login');
-        return;
-      }
-
-      // Prepare order data from cart items
-      const orderData = {
-        items: cart.items.map(item => ({
-          productId: item.productId,
-          quantity: item.quantity,
-        })),
-        shippingInfo: JSON.stringify({
-          address: "Will be updated during checkout",
-          city: "",
-          state: "",
-          zipCode: "",
-          country: "USA"
-        }),
-      };
-
-      const response = await fetch('http://localhost:3000/api/orders', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(orderData),
-      });
-
-      if (response.ok) {
-        // Clear cart after successful order
-        await clearCart();
-        // Redirect to orders page
-        router.push('/orders');
-      } else {
-        const errorData = await response.json();
-        setError(errorData.message || 'Failed to place order');
-      }
-    } catch (err) {
-      setError('An error occurred while placing order');
-    } finally {
-      setIsCheckingOut(false);
+    // Check if user is logged in
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      router.push('/auth/login');
+      return;
     }
+
+    // Navigate to checkout page
+    router.push('/checkout');
   };
 
   const formatPrice = (price: number) => {
