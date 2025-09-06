@@ -24,6 +24,7 @@ model User {
   productsForSale Product[] @relation("UserSellingProducts")  // Products they're SELLING
   orders          Order[]   @relation("UserBuyingProducts")   // Orders they're BUYING
   reviews         Review[]  // Reviews they've written
+  cart            Cart?     // User's shopping cart
   
   @@index([email])
   @@index([role])
@@ -98,6 +99,7 @@ model Product {
   
   orderItems  OrderItem[]
   reviews     Review[]
+  cartItems   CartItem[]  // Items in cart
   
   @@index([sellerId])
   @@index([category])
@@ -173,5 +175,32 @@ model Review {
   @@index([productId])
   @@index([isHidden])
   @@unique([reviewerId, productId]) // One review per user per product
+}
+
+model Cart {
+  id        String     @id @default(cuid())
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String     @unique // One cart per user
+  items     CartItem[] // Cart items
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  
+  @@index([userId])
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  cartId    String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+  quantity  Int      @default(1)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([cartId])
+  @@index([productId])
+  @@unique([cartId, productId]) // One item per product per cart
 }
 
