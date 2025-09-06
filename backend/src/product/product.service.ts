@@ -159,6 +159,62 @@ export class ProductService {
     });
   }
 
+  async getProductById(productId: string) {
+    const product = await this.prisma.product.findUnique({
+      where: { 
+        id: productId,
+        isActive: true,
+        isApproved: true
+      },
+      include: {
+        seller: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatar: true
+          }
+        },
+        reviews: {
+          select: {
+            id: true,
+            rating: true,
+            comment: true,
+            createdAt: true,
+            reviewer: {
+              select: {
+                id: true,
+                name: true,
+                avatar: true
+              }
+            }
+          },
+          where: {
+            isHidden: false
+          },
+          orderBy: {
+            createdAt: 'desc'
+          }
+        }
+      }
+    });
+
+    if (!product) {
+      throw new Error('Product not found or not available');
+    }
+
+    // Calculate average rating
+    const averageRating = product.reviews.length > 0 
+      ? product.reviews.reduce((sum, review) => sum + review.rating, 0) / product.reviews.length 
+      : 0;
+
+    return {
+      ...product,
+      averageRating,
+      reviewCount: product.reviews.length
+    };
+  }
+
   async getAllProducts(filters: ProductFilters = {}, pagination: PaginationOptions = {}) {
     const { page = 1, limit = 10 } = pagination;
     const skip = (page - 1) * limit;
@@ -184,9 +240,17 @@ export class ProductService {
 
     if (filters.search) {
       where.OR = [
-        { name: { contains: filters.search, mode: 'insensitive' } },
+        { title: { contains: filters.search, mode: 'insensitive' } },
         { description: { contains: filters.search, mode: 'insensitive' } }
       ];
+    }
+
+    if (filters.condition) {
+      where.condition = filters.condition;
+    }
+
+    if (filters.brand) {
+      where.brand = { contains: filters.brand, mode: 'insensitive' };
     }
 
     const [products, total] = await Promise.all([

@@ -85,6 +85,26 @@ export class ProductController {
     }
   }
 
+  @Get(':id')
+  async getProductById(@Param('id') productId: string) {
+    this.logger.log(`Fetching product: ${productId}`);
+    
+    try {
+      const product = await this.productService.getProductById(productId);
+      
+      return {
+        status: 'success',
+        message: 'Product retrieved successfully',
+        data: product,
+      };
+    } catch (error) {
+      return {
+        status: 'error',
+        message: error.message,
+      };
+    }
+  }
+
   @Get()
   async getAllProducts(
     @Query('category') category?: string,
