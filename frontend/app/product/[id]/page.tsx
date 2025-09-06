@@ -73,6 +73,8 @@ export default function ProductDetailPage() {
   const [quantity, setQuantity] = useState(1);
   const [isOrdering, setIsOrdering] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [cartSuccess, setCartSuccess] = useState(false);
 
   useEffect(() => {
     if (productId) {
@@ -152,6 +154,50 @@ export default function ProductDetailPage() {
       setError('An error occurred while placing the order');
     } finally {
       setIsOrdering(false);
+    }
+  };
+
+  const handleAddToCart = async () => {
+    if (!product) return;
+
+    // Check if user is logged in
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      router.push('/auth/login');
+      return;
+    }
+
+    setIsAddingToCart(true);
+    setError('');
+
+    try {
+      const cartData = {
+        productId: product.id,
+        quantity: quantity,
+      };
+
+      const response = await fetch('http://localhost:3000/api/cart', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(cartData),
+      });
+
+      if (response.ok) {
+        setCartSuccess(true);
+        setTimeout(() => {
+          setCartSuccess(false);
+        }, 3000);
+      } else {
+        const errorData = await response.json();
+        setError(errorData.message || 'Failed to add to cart');
+      }
+    } catch (err) {
+      setError('An error occurred while adding to cart');
+    } finally {
+      setIsAddingToCart(false);
     }
   };
 
@@ -271,6 +317,15 @@ export default function ProductDetailPage() {
           </div>
         )}
 
+        {cartSuccess && (
+          <div className="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+            Product added to cart successfully! 
+            <Link href="/cart" className="ml-2 underline hover:text-green-800">
+              View Cart
+            </Link>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Product Images */}
           <div className="space-y-4">
@@ -383,22 +438,41 @@ export default function ProductDetailPage() {
                 </div>
               </div>
 
-              <button
-                onClick={handlePlaceOrder}
-                disabled={isOrdering || product.quantity === 0}
-                className="w-full bg-indigo-600 text-white py-3 px-6 rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-              >
-                {isOrdering ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Placing Order...
-                  </>
-                ) : product.quantity === 0 ? (
-                  'Out of Stock'
-                ) : (
-                  'Place Order'
-                )}
-              </button>
+              <div className="space-y-3">
+                <button
+                  onClick={handleAddToCart}
+                  disabled={isAddingToCart || product.quantity === 0}
+                  className="w-full bg-white text-indigo-600 border border-indigo-600 py-3 px-6 rounded-md hover:bg-indigo-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                >
+                  {isAddingToCart ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-indigo-600 mr-2"></div>
+                      Adding to Cart...
+                    </>
+                  ) : product.quantity === 0 ? (
+                    'Out of Stock'
+                  ) : (
+                    'Add to Cart'
+                  )}
+                </button>
+
+                <button
+                  onClick={handlePlaceOrder}
+                  disabled={isOrdering || product.quantity === 0}
+                  className="w-full bg-indigo-600 text-white py-3 px-6 rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                >
+                  {isOrdering ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Placing Order...
+                    </>
+                  ) : product.quantity === 0 ? (
+                    'Out of Stock'
+                  ) : (
+                    'Buy Now'
+                  )}
+                </button>
+              </div>
 
               {error && (
                 <div className="mt-3 text-red-600 text-sm">{error}</div>
