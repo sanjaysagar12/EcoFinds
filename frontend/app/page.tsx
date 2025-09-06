@@ -104,11 +104,11 @@ export default function HomePage() {
             Your city <span className="mx-1 font-semibold">New York, USA</span> <a href="#" className="text-indigo-600 underline ml-1">Change</a>
           </span>
         </div>
-        <div className="flex items-center gap-3">
-          <button className="px-5 py-1 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-100">Sign in</button>
-          <button className="flex items-center gap-2 px-5 py-1 rounded-lg bg-indigo-500 text-white font-medium">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.35 2.7A1 1 0 007 17h10a1 1 0 00.95-.68L19 13M7 13V6a1 1 0 011-1h5a1 1 0 011 1v7"/></svg>
-            My cart: 0
+        <div className="flex items-center">
+          <button className="p-2 rounded-full hover:bg-gray-100 transition-colors">
+            <svg className="w-8 h-8 text-gray-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+            </svg>
           </button>
         </div>
       </header>
