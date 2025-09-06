@@ -19,7 +19,7 @@ export class ProductController {
     @Body() createProductDto: CreateProductDto,
     @GetUser('sub') userId: string,
   ) {
-    this.logger.log(`User ${userId} creating a new product: ${createProductDto.name}`);
+    this.logger.log(`User ${userId} creating a new product: ${createProductDto.title}`);
     
     const productData = {
       ...createProductDto,

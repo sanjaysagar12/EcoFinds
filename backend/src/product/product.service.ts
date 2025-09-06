@@ -16,23 +16,53 @@ export interface PaginationOptions {
 }
 
 export interface CreateProductData {
-  name: string;
+  title: string;
+  category: string;
   description: string;
-  image?: string;
   price: number;
-  stock: number;
-  category?: string;
+  quantity: number;
+  condition: string;
+  yearOfManufacture?: number;
+  brand?: string;
+  model?: string;
+  dimensionLength?: number;
+  dimensionWidth?: number;
+  dimensionHeight?: number;
+  weight?: number;
+  material?: string;
+  color?: string;
+  originalPackaging?: boolean;
+  manualIncluded?: boolean;
+  workingConditionDesc?: string;
+  thumbnail?: string;
+  images?: string[];
+  stock?: number;
   isActive?: boolean;
   sellerId: string;
 }
 
 export interface UpdateProductData {
-  name?: string;
-  description?: string;
-  image?: string;
-  price?: number;
-  stock?: number;
+  title?: string;
   category?: string;
+  description?: string;
+  price?: number;
+  quantity?: number;
+  condition?: string;
+  yearOfManufacture?: number;
+  brand?: string;
+  model?: string;
+  dimensionLength?: number;
+  dimensionWidth?: number;
+  dimensionHeight?: number;
+  weight?: number;
+  material?: string;
+  color?: string;
+  originalPackaging?: boolean;
+  manualIncluded?: boolean;
+  workingConditionDesc?: string;
+  thumbnail?: string;
+  images?: string[];
+  stock?: number;
   isActive?: boolean;
 }
 
@@ -43,12 +73,27 @@ export class ProductService {
   async createProduct(productData: CreateProductData) {
     return await this.prisma.product.create({
       data: {
-        name: productData.name,
-        description: productData.description,
-        image: productData.image,
-        price: productData.price,
-        stock: productData.stock,
+        title: productData.title,
         category: productData.category,
+        description: productData.description,
+        price: productData.price,
+        quantity: productData.quantity,
+        condition: productData.condition,
+        yearOfManufacture: productData.yearOfManufacture,
+        brand: productData.brand,
+        model: productData.model,
+        dimensionLength: productData.dimensionLength,
+        dimensionWidth: productData.dimensionWidth,
+        dimensionHeight: productData.dimensionHeight,
+        weight: productData.weight,
+        material: productData.material,
+        color: productData.color,
+        originalPackaging: productData.originalPackaging ?? false,
+        manualIncluded: productData.manualIncluded ?? false,
+        workingConditionDesc: productData.workingConditionDesc,
+        thumbnail: productData.thumbnail,
+        images: productData.images || [],
+        stock: productData.stock ?? 0,
         isActive: productData.isActive ?? true,
         sellerId: productData.sellerId,
       },
