@@ -13,7 +13,7 @@ export class AuthService {
     ) { }
 
     async register(registerDto: RegisterDto) {
-        const { username, email, password } = registerDto;
+        const { name, email, password } = registerDto;
 
         try {
             // Additional manual validation
@@ -21,12 +21,12 @@ export class AuthService {
                 throw new BadRequestException('Please provide a valid email address');
             }
             
-            if (!password || password.length < 8) {
-                throw new BadRequestException('Password must be at least 8 characters long');
+            if (!password || password.length < 6) {
+                throw new BadRequestException('Password must be at least 6 characters long');
             }
             
-            if (!username || username.length < 3) {
-                throw new BadRequestException('Username must be at least 3 characters long');
+            if (!name || name.length < 2) {
+                throw new BadRequestException('Name must be at least 2 characters long');
             }
 
             // Check if user already exists with this email
@@ -38,15 +38,6 @@ export class AuthService {
                 throw new ConflictException('User with this email already exists');
             }
 
-            // Check if username is already taken (assuming we add username to schema)
-            const existingUserByName = await this.prisma.user.findFirst({
-                where: { name: username }
-            });
-
-            if (existingUserByName) {
-                throw new ConflictException('Username is already taken');
-            }
-
             // Hash password
             const saltRounds = 12;
             const hashedPassword = await bcrypt.hash(password, saltRounds);
@@ -54,7 +45,7 @@ export class AuthService {
             // Create user
             const user = await this.prisma.user.create({
                 data: {
-                    name: username,
+                    name,
                     email,
                     password: hashedPassword,
                     role: 'USER'
