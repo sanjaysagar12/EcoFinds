@@ -29,7 +29,7 @@ export default function LoginPage() {
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem('auth_token', data.access_token);
-        router.push('/dashboard');
+        router.push('/');
       } else {
         const errorData = await response.json();
         setError(errorData.message || 'Login failed');

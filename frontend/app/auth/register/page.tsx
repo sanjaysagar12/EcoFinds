@@ -64,9 +64,9 @@ export default function RegisterPage() {
           localStorage.setItem('auth_token', data.access_token);
         }
         
-        setSuccess('Account created successfully! Redirecting to your profile...');
+        setSuccess('Account created successfully! Redirecting to your Home...');
         setTimeout(() => {
-          router.push('/profile');
+          router.push('/');
         }, 2000);
       } else {
         const errorData = await response.json();

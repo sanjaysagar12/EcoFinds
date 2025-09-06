@@ -23,7 +23,7 @@ export default function AuthCallbackPage() {
         localStorage.setItem('auth_token', token);
         setStatus('success');
         setMessage('Authentication successful! Redirecting...');
-        setTimeout(() => router.push('/profile'), 2000);
+        setTimeout(() => router.push('/'), 2000);
       } catch {
         setStatus('error');
         setMessage('An error occurred. Redirecting...');
