@@ -12,13 +12,15 @@ model User {
   id        String    @id @default(cuid())
   email     String    @unique
   name      String?
+  phone     String?   // Phone number
   password  String?   // For local auth
   googleId  String?   // For Google OAuth
   avatar    String?   
   role      Role      @default(USER)
   createdAt DateTime  @default(now())
   
-  // SAME USER can do both (unless ADMIN):
+  // Relations
+  addresses       Address[] // User addresses
   productsForSale Product[] @relation("UserSellingProducts")  // Products they're SELLING
   orders          Order[]   @relation("UserBuyingProducts")   // Orders they're BUYING
   reviews         Review[]  // Reviews they've written
@@ -30,6 +32,25 @@ model User {
 enum Role {
   USER   
   ADMIN
+}
+
+model Address {
+  id        String   @id @default(cuid())
+  street    String   // Street address
+  city      String   // City
+  state     String   // State/Province
+  county    String?  // County (optional)
+  pincode   String   // Postal/ZIP code
+  country   String   @default("India") // Country
+  isDefault Boolean  @default(false) // Is this the default address
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  
+  @@index([userId])
 }
 
 model Product {
