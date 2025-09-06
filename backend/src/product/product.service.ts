@@ -8,6 +8,7 @@ export interface ProductFilters {
   sellerId?: string;
   isActive?: boolean;
   search?: string;
+  keywords?: string; // New: Search specifically in product title only
   condition?: string;
   brand?: string;
 }
@@ -243,6 +244,21 @@ export class ProductService {
         { title: { contains: filters.search, mode: 'insensitive' } },
         { description: { contains: filters.search, mode: 'insensitive' } }
       ];
+    }
+
+    if (filters.keywords) {
+      // Keywords search only in product title
+      if (where.OR) {
+        // If search is already applied, combine with AND logic
+        where.AND = [
+          { OR: where.OR },
+          { title: { contains: filters.keywords, mode: 'insensitive' } }
+        ];
+        delete where.OR;
+      } else {
+        // If no search applied, just search in title
+        where.title = { contains: filters.keywords, mode: 'insensitive' };
+      }
     }
 
     if (filters.condition) {
