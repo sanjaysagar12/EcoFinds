@@ -1,6 +1,6 @@
-import { Body, Controller, Get, Post, Query, UseGuards, Logger } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, Delete, Query, UseGuards, Logger, Param } from '@nestjs/common';
 import { ProductService, ProductFilters, PaginationOptions } from './product.service';
-import { CreateProductDto } from './dto';
+import { CreateProductDto, UpdateProductDto } from './dto';
 import { JwtGuard } from 'src/application/common/guards/jwt.guard';
 import { RolesGuard } from 'src/application/common/guards/roles.guard';
 import { Roles, Role } from 'src/application/common/decorator/roles.decorator';
@@ -33,6 +33,56 @@ export class ProductController {
       message: 'Product created successfully',
       data: product,
     };
+  }
+
+  @Put(':id')
+  @UseGuards(JwtGuard, RolesGuard)
+  @Roles(Role.USER, Role.ADMIN)
+  async updateProduct(
+    @Param('id') productId: string,
+    @Body() updateProductDto: UpdateProductDto,
+    @GetUser('sub') userId: string,
+  ) {
+    this.logger.log(`User ${userId} updating product: ${productId}`);
+    
+    try {
+      const product = await this.productService.updateProduct(productId, userId, updateProductDto);
+      
+      return {
+        status: 'success',
+        message: 'Product updated successfully',
+        data: product,
+      };
+    } catch (error) {
+      return {
+        status: 'error',
+        message: error.message,
+      };
+    }
+  }
+
+  @Delete(':id')
+  @UseGuards(JwtGuard, RolesGuard)
+  @Roles(Role.USER, Role.ADMIN)
+  async deleteProduct(
+    @Param('id') productId: string,
+    @GetUser('sub') userId: string,
+  ) {
+    this.logger.log(`User ${userId} deleting product: ${productId}`);
+    
+    try {
+      await this.productService.deleteProduct(productId, userId);
+      
+      return {
+        status: 'success',
+        message: 'Product deleted successfully',
+      };
+    } catch (error) {
+      return {
+        status: 'error',
+        message: error.message,
+      };
+    }
   }
 
   @Get()

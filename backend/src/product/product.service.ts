@@ -26,6 +26,16 @@ export interface CreateProductData {
   sellerId: string;
 }
 
+export interface UpdateProductData {
+  name?: string;
+  description?: string;
+  image?: string;
+  price?: number;
+  stock?: number;
+  category?: string;
+  isActive?: boolean;
+}
+
 @Injectable()
 export class ProductService {
   constructor(private prisma: PrismaService) {}
@@ -52,6 +62,53 @@ export class ProductService {
           }
         }
       }
+    });
+  }
+
+  async updateProduct(productId: string, sellerId: string, updateData: UpdateProductData) {
+    // First check if the product exists and belongs to the seller
+    const existingProduct = await this.prisma.product.findFirst({
+      where: {
+        id: productId,
+        sellerId: sellerId
+      }
+    });
+
+    if (!existingProduct) {
+      throw new Error('Product not found or you are not authorized to update this product');
+    }
+
+    return await this.prisma.product.update({
+      where: { id: productId },
+      data: updateData,
+      include: {
+        seller: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatar: true
+          }
+        }
+      }
+    });
+  }
+
+  async deleteProduct(productId: string, sellerId: string) {
+    // First check if the product exists and belongs to the seller
+    const existingProduct = await this.prisma.product.findFirst({
+      where: {
+        id: productId,
+        sellerId: sellerId
+      }
+    });
+
+    if (!existingProduct) {
+      throw new Error('Product not found or you are not authorized to delete this product');
+    }
+
+    return await this.prisma.product.delete({
+      where: { id: productId }
     });
   }
 
