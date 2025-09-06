@@ -91,7 +91,7 @@ export default function ProductFilter({ onFilterChange, isLoading = false }: Pro
             placeholder="Search by title or description..."
             value={filters.search}
             onChange={(e) => handleFilterChange('search', e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 placeholder-gray-500 text-gray-900"
             disabled={isLoading}
           />
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -144,12 +144,12 @@ export default function ProductFilter({ onFilterChange, isLoading = false }: Pro
             id="category"
             value={filters.category}
             onChange={(e) => handleFilterChange('category', e.target.value)}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white"
             disabled={isLoading}
           >
-            <option value="">All Categories</option>
+            <option value="" className="text-gray-500">All Categories</option>
             {categories.map((category) => (
-              <option key={category} value={category}>
+              <option key={category} value={category} className="text-gray-900">
                 {category}
               </option>
             ))}
@@ -165,12 +165,12 @@ export default function ProductFilter({ onFilterChange, isLoading = false }: Pro
             id="condition"
             value={filters.condition}
             onChange={(e) => handleFilterChange('condition', e.target.value)}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white"
             disabled={isLoading}
           >
-            <option value="">All Conditions</option>
+            <option value="" className="text-gray-500">All Conditions</option>
             {conditions.map((condition) => (
-              <option key={condition} value={condition}>
+              <option key={condition} value={condition} className="text-gray-900">
                 {condition}
               </option>
             ))}
@@ -185,10 +185,10 @@ export default function ProductFilter({ onFilterChange, isLoading = false }: Pro
           <input
             type="text"
             id="brand"
-            placeholder="Enter brand..."
+            placeholder="Enter brand name..."
             value={filters.brand}
             onChange={(e) => handleFilterChange('brand', e.target.value)}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500 placeholder-gray-500 text-gray-900"
             disabled={isLoading}
           />
         </div>
@@ -201,19 +201,19 @@ export default function ProductFilter({ onFilterChange, isLoading = false }: Pro
           <div className="flex space-x-2">
             <input
               type="number"
-              placeholder="Min"
+              placeholder="Min Price"
               value={filters.minPrice}
               onChange={(e) => handleFilterChange('minPrice', e.target.value)}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500 placeholder-gray-500 text-gray-900"
               disabled={isLoading}
             />
-            <span className="text-gray-500 self-center">to</span>
+            <span className="text-gray-500 self-center px-1">to</span>
             <input
               type="number"
-              placeholder="Max"
+              placeholder="Max Price"
               value={filters.maxPrice}
               onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500 placeholder-gray-500 text-gray-900"
               disabled={isLoading}
             />
           </div>
@@ -235,7 +235,7 @@ export default function ProductFilter({ onFilterChange, isLoading = false }: Pro
                 placeholder="Enter seller ID..."
                 value={filters.sellerId}
                 onChange={(e) => handleFilterChange('sellerId', e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500 placeholder-gray-500 text-gray-900"
                 disabled={isLoading}
               />
             </div>
@@ -249,12 +249,12 @@ export default function ProductFilter({ onFilterChange, isLoading = false }: Pro
                 id="isActive"
                 value={filters.isActive}
                 onChange={(e) => handleFilterChange('isActive', e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white"
                 disabled={isLoading}
               >
-                <option value="">All Products</option>
-                <option value="true">Active Only</option>
-                <option value="false">Inactive Only</option>
+                <option value="" className="text-gray-500">All Products</option>
+                <option value="true" className="text-gray-900">Active Only</option>
+                <option value="false" className="text-gray-900">Inactive Only</option>
               </select>
             </div>
           </div>

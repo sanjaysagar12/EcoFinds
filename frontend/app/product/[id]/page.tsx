@@ -244,43 +244,63 @@ export default function ProductDetailPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Breadcrumb */}
-        <nav className="flex mb-8" aria-label="Breadcrumb">
-          <ol className="flex items-center space-x-4">
-            <li>
-              <Link href="/product" className="text-gray-400 hover:text-gray-500">
-                Products
-              </Link>
-            </li>
-            <li>
-              <svg className="h-5 w-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-              </svg>
-            </li>
-            <li>
-              <span className="text-gray-500">{product.category}</span>
-            </li>
-            <li>
-              <svg className="h-5 w-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-              </svg>
-            </li>
-            <li>
-              <span className="text-gray-500 truncate">{product.title}</span>
-            </li>
-          </ol>
-        </nav>
+        {/* Header Section */}
+        <div className="border-b border-gray-200 pb-6 mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <nav className="flex mb-4" aria-label="Breadcrumb">
+                <ol className="flex items-center space-x-4">
+                  <li>
+                    <Link href="/product" className="text-indigo-600 hover:text-indigo-800 font-medium">
+                      <svg className="inline mr-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                      </svg>
+                      Products
+                    </Link>
+                  </li>
+                  <li>
+                    <svg className="h-5 w-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </li>
+                  <li>
+                    <span className="text-gray-500">{product.category}</span>
+                  </li>
+                </ol>
+              </nav>
+              <h1 className="text-3xl font-bold text-gray-900">{product.title}</h1>
+              <p className="mt-2 text-sm text-gray-600">
+                Listed by {product.seller.name} • {new Date(product.createdAt).toLocaleDateString()}
+              </p>
+            </div>
+            <div className="mt-4 sm:mt-0 flex flex-col sm:flex-row gap-3">
+              <div className="text-center sm:text-right">
+                <div className="text-2xl font-bold text-indigo-600">₹{product.price.toLocaleString()}</div>
+                <div className="text-sm text-gray-500">
+                  {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
+        {/* Success Messages */}
         {orderSuccess && (
-          <div className="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+          <div className="mb-6 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg flex items-center">
+            <svg className="mr-2 h-5 w-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
             Order placed successfully! Redirecting to your orders...
           </div>
         )}
 
         {cartSuccess && (
-          <div className="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+          <div className="mb-6 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg flex items-center">
+            <svg className="mr-2 h-5 w-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
             Product added to cart successfully! 
-            <Link href="/cart" className="ml-2 underline hover:text-green-800">
+            <Link href="/cart" className="ml-2 underline hover:text-green-900 font-medium">
               View Cart
             </Link>
           </div>

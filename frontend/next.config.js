@@ -92,6 +92,12 @@ const nextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'dharshankumar.com',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };
