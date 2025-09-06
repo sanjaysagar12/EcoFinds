@@ -96,7 +96,7 @@ export default function HomePage() {
       <header className="w-full border-b bg-white px-8 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="inline-block mr-2">
-            <Image src="/images/logo.png" alt="EcoFinds Logo" width={48} height={48} className="rounded-xl" />
+            <Image src="/logo.jpg" alt="EcoFinds Logo" width={48} height={48} className="rounded-xl" />
           </span>
           <span className="text-2xl font-bold text-gray-900">EcoFinds</span>
           <span className="ml-6 flex items-center text-gray-700 text-base">
