@@ -69,4 +69,15 @@ export class CartController {
             message: 'Item removed from cart successfully'
         };
     }
+
+    @Delete()
+    @Roles(Role.USER, Role.ADMIN)
+    async clearCart(@GetUser('sub') userId: string) {
+        this.logger.log(`User ${userId} clearing cart`);
+        await this.cartService.clearCart(userId);
+        return {
+            statusCode: HttpStatus.OK,
+            message: 'Cart cleared successfully'
+        };
+    }
 }
