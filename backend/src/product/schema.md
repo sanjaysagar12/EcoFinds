@@ -9,7 +9,7 @@ The Product API provides endpoints for managing products in the EcoFinds marketp
 ```
 
 ## Authentication
-All endpoints except `GET /api/products` require JWT authentication with the following headers:
+All endpoints except `GET /api/products` and `GET /api/products/:id` require JWT authentication with the following headers:
 ```
 Authorization: Bearer <jwt_token>
 ```
@@ -92,7 +92,87 @@ GET /api/products?page=1&limit=10&category=Electronics&minPrice=100&maxPrice=500
 }
 ```
 
-### 2. Create Product
+### 2. Get Product by ID
+**GET** `/api/products/:id`
+
+Retrieve a specific product by its ID. This is a public endpoint that returns detailed product information including reviews.
+
+#### Path Parameters
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `id` | string | Yes | Product ID |
+
+#### Example Request
+```http
+GET /api/products/clm123abc456
+```
+
+#### Response Schema
+```json
+{
+  "status": "success",
+  "message": "Product retrieved successfully",
+  "data": {
+    "id": "string",
+    "title": "string",
+    "category": "string",
+    "description": "string",
+    "price": "number",
+    "quantity": "number",
+    "condition": "string",
+    "yearOfManufacture": "number | null",
+    "brand": "string | null",
+    "model": "string | null",
+    "dimensionLength": "number | null",
+    "dimensionWidth": "number | null",
+    "dimensionHeight": "number | null",
+    "weight": "number | null",
+    "material": "string | null",
+    "color": "string | null",
+    "originalPackaging": "boolean",
+    "manualIncluded": "boolean",
+    "workingConditionDesc": "string | null",
+    "thumbnail": "string | null",
+    "images": "string[]",
+    "stock": "number",
+    "isActive": "boolean",
+    "isApproved": "boolean",
+    "createdAt": "string (ISO date)",
+    "updatedAt": "string (ISO date)",
+    "seller": {
+      "id": "string",
+      "name": "string",
+      "email": "string",
+      "avatar": "string | null"
+    },
+    "reviews": [
+      {
+        "id": "string",
+        "rating": "number (1-5)",
+        "comment": "string | null",
+        "createdAt": "string (ISO date)",
+        "reviewer": {
+          "id": "string",
+          "name": "string",
+          "avatar": "string | null"
+        }
+      }
+    ],
+    "averageRating": "number",
+    "reviewCount": "number"
+  }
+}
+```
+
+#### Error Response
+```json
+{
+  "status": "error",
+  "message": "Product not found or not available"
+}
+```
+
+### 3. Create Product
 **POST** `/api/products`
 
 Create a new product. Requires authentication and USER/ADMIN role.
@@ -204,7 +284,7 @@ Authorization: Bearer <jwt_token>
 }
 ```
 
-### 3. Update Product
+### 4. Update Product
 **PUT** `/api/products/:id`
 
 Update an existing product. Only the seller who created the product can update it.
@@ -307,7 +387,7 @@ Authorization: Bearer <jwt_token>
 }
 ```
 
-### 4. Delete Product
+### 5. Delete Product
 **DELETE** `/api/products/:id`
 
 Delete a product. Only the seller who created the product can delete it.
