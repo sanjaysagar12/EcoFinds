@@ -103,7 +103,7 @@ export default function ProductDetailPage() {
     }
   };
 
-  const handlePlaceOrder = async () => {
+  const handleBuyNow = async () => {
     if (!product) return;
 
     // Check if user is logged in
@@ -113,48 +113,8 @@ export default function ProductDetailPage() {
       return;
     }
 
-    setIsOrdering(true);
-
-    try {
-      const orderData = {
-        items: [
-          {
-            productId: product.id,
-            quantity: quantity,
-          },
-        ],
-        shippingInfo: JSON.stringify({
-          address: "Will be updated during checkout",
-          city: "",
-          state: "",
-          zipCode: "",
-          country: "USA"
-        }),
-      };
-
-      const response = await fetch('http://localhost:3000/api/orders', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(orderData),
-      });
-
-      if (response.ok) {
-        setOrderSuccess(true);
-        setTimeout(() => {
-          router.push('/orders');
-        }, 2000);
-      } else {
-        const errorData = await response.json();
-        setError(errorData.message || 'Failed to place order');
-      }
-    } catch (err) {
-      setError('An error occurred while placing the order');
-    } finally {
-      setIsOrdering(false);
-    }
+    // Navigate to checkout with product and quantity
+    router.push(`/checkout?productId=${product.id}&quantity=${quantity}`);
   };
 
   const handleAddToCart = async () => {
@@ -457,7 +417,7 @@ export default function ProductDetailPage() {
                 </button>
 
                 <button
-                  onClick={handlePlaceOrder}
+                  onClick={handleBuyNow}
                   disabled={isOrdering || product.quantity === 0}
                   className="w-full bg-indigo-600 text-white py-3 px-6 rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                 >
