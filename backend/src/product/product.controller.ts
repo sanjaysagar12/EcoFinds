@@ -1,9 +1,39 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards, Logger } from '@nestjs/common';
 import { ProductService, ProductFilters, PaginationOptions } from './product.service';
+import { CreateProductDto } from './dto';
+import { JwtGuard } from 'src/application/common/guards/jwt.guard';
+import { RolesGuard } from 'src/application/common/guards/roles.guard';
+import { Roles, Role } from 'src/application/common/decorator/roles.decorator';
+import { GetUser } from 'src/application/common/decorator/get-user.decorator';
 
 @Controller('api/products')
 export class ProductController {
+  private readonly logger = new Logger(ProductController.name);
+  
   constructor(private readonly productService: ProductService) {}
+
+  @Post()
+  @UseGuards(JwtGuard, RolesGuard)
+  @Roles(Role.USER, Role.ADMIN)
+  async createProduct(
+    @Body() createProductDto: CreateProductDto,
+    @GetUser('sub') userId: string,
+  ) {
+    this.logger.log(`User ${userId} creating a new product: ${createProductDto.name}`);
+    
+    const productData = {
+      ...createProductDto,
+      sellerId: userId,
+    };
+    
+    const product = await this.productService.createProduct(productData);
+    
+    return {
+      status: 'success',
+      message: 'Product created successfully',
+      data: product,
+    };
+  }
 
   @Get()
   async getAllProducts(

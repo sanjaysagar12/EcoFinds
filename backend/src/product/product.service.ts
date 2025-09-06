@@ -15,9 +15,45 @@ export interface PaginationOptions {
   limit?: number;
 }
 
+export interface CreateProductData {
+  name: string;
+  description: string;
+  image?: string;
+  price: number;
+  stock: number;
+  category?: string;
+  isActive?: boolean;
+  sellerId: string;
+}
+
 @Injectable()
 export class ProductService {
   constructor(private prisma: PrismaService) {}
+
+  async createProduct(productData: CreateProductData) {
+    return await this.prisma.product.create({
+      data: {
+        name: productData.name,
+        description: productData.description,
+        image: productData.image,
+        price: productData.price,
+        stock: productData.stock,
+        category: productData.category,
+        isActive: productData.isActive ?? true,
+        sellerId: productData.sellerId,
+      },
+      include: {
+        seller: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatar: true
+          }
+        }
+      }
+    });
+  }
 
   async getAllProducts(filters: ProductFilters = {}, pagination: PaginationOptions = {}) {
     const { page = 1, limit = 10 } = pagination;
