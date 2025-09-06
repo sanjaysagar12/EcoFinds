@@ -136,4 +136,103 @@ export class ProductController {
 
     return this.productService.getAllProducts(filters, pagination);
   }
+
+  // Get products listed by the current authenticated user
+  @Get('my-products')
+  @UseGuards(JwtGuard, RolesGuard)
+  @Roles(Role.USER, Role.ADMIN)
+  async getMyProducts(
+    @GetUser('sub') userId: string,
+    @Query('category') category?: string,
+    @Query('minPrice') minPrice?: string,
+    @Query('maxPrice') maxPrice?: string,
+    @Query('isActive') isActive?: string,
+    @Query('search') search?: string,
+    @Query('condition') condition?: string,
+    @Query('brand') brand?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    this.logger.log(`User ${userId} fetching their own products`);
+    
+    const filters: ProductFilters = {
+      category,
+      minPrice: minPrice ? parseFloat(minPrice) : undefined,
+      maxPrice: maxPrice ? parseFloat(maxPrice) : undefined,
+      sellerId: userId, // Force sellerId to be the current user
+      isActive: isActive ? isActive === 'true' : undefined,
+      search,
+      condition,
+      brand,
+    };
+
+    const pagination: PaginationOptions = {
+      page: page ? parseInt(page, 10) : 1,
+      limit: limit ? parseInt(limit, 10) : 10,
+    };
+
+    try {
+      const result = await this.productService.getAllProducts(filters, pagination);
+      
+      return {
+        status: 'success',
+        message: 'Your products retrieved successfully',
+        products: result.products,
+        pagination: result.pagination,
+      };
+    } catch (error) {
+      return {
+        status: 'error',
+        message: error.message,
+      };
+    }
+  }
+
+  // Get products listed by any specific user (public endpoint)
+  @Get('by-user/:userId')
+  async getProductsByUser(
+    @Param('userId') userId: string,
+    @Query('category') category?: string,
+    @Query('minPrice') minPrice?: string,
+    @Query('maxPrice') maxPrice?: string,
+    @Query('search') search?: string,
+    @Query('condition') condition?: string,
+    @Query('brand') brand?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    this.logger.log(`Fetching products listed by user ${userId}`);
+    
+    const filters: ProductFilters = {
+      category,
+      minPrice: minPrice ? parseFloat(minPrice) : undefined,
+      maxPrice: maxPrice ? parseFloat(maxPrice) : undefined,
+      sellerId: userId, // Filter by the specified user ID
+      isActive: true, // Only show active products for public viewing
+      search,
+      condition,
+      brand,
+    };
+
+    const pagination: PaginationOptions = {
+      page: page ? parseInt(page, 10) : 1,
+      limit: limit ? parseInt(limit, 10) : 10,
+    };
+
+    try {
+      const result = await this.productService.getAllProducts(filters, pagination);
+      
+      return {
+        status: 'success',
+        message: 'Products retrieved successfully',
+        products: result.products,
+        pagination: result.pagination,
+      };
+    } catch (error) {
+      return {
+        status: 'error',
+        message: error.message,
+      };
+    }
+  }
 }
