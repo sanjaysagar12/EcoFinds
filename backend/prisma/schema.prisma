@@ -1,12 +1,6 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
+// EcoFinds - Single user can buy AND sell products + Admin role
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -14,22 +8,122 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  USER
-  ADMIN
-  SELLER
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  name      String?
+  password  String?   // For local auth
+  googleId  String?   // For Google OAuth
+  avatar    String?   
+  role      Role      @default(USER)
+  createdAt DateTime  @default(now())
+  
+  // SAME USER can do both (unless ADMIN):
+  productsForSale Product[] @relation("UserSellingProducts")  // Products they're SELLING
+  orders          Order[]   @relation("UserBuyingProducts")   // Orders they're BUYING
+  reviews         Review[]  // Reviews they've written
+  
+  @@index([email])
+  @@index([role])
 }
 
-model User {
-  id          String   @id @default(cuid())
-  email       String   @unique
-  password    String?
-  name        String?
-  avatar      String?
-  googleId    String?  @unique
-  role        Role     @default(USER)
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
+enum Role {
+  USER   
+  ADMIN
+}
+
+model Product {
+  id          String      @id @default(cuid())
+  name        String
+  description String      @db.Text
+  image       String?     
+  price       Decimal     @db.Decimal(10, 2)
+  stock       Int         @default(0)
+  category    String?     // "Electronics", "Books", "Clothing", etc.
+  isActive    Boolean     @default(true)
+  isApproved  Boolean     @default(true)  // Admin can approve/reject products
   
+  // WHO is selling this product
+  seller      User        @relation("UserSellingProducts", fields: [sellerId], references: [id])
+  sellerId    String
+  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  orderItems  OrderItem[]
+  reviews     Review[]
+  
+  @@index([sellerId])
+  @@index([category])
+  @@index([isActive])
+  @@index([isApproved])
+}
+
+model Order {
+  id            String      @id @default(cuid())
+  orderNumber   String      @unique @default(cuid())
+  
+  // WHO is buying these products
+  buyer         User        @relation("UserBuyingProducts", fields: [buyerId], references: [id])
+  buyerId       String
+  
+  items         OrderItem[]
+  total         Decimal     @db.Decimal(10, 2)
+  status        OrderStatus @default(PENDING)
+  shippingInfo  String?     // JSON string with address
+  
+  // Admin can intervene
+  adminNotes    String?     // Admin can add notes to orders
+  
+  createdAt     DateTime    @default(now())
+  deliveredAt   DateTime?
+  
+  reviews       Review[]
+  
+  @@index([buyerId])
+  @@index([status])
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  ADMIN_HOLD    // Admin can put orders on hold
+}
+
+model OrderItem {
+  id          String  @id @default(cuid())
+  order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId     String
+  product     Product @relation(fields: [productId], references: [id])
+  productId   String
+  
+  productName String  // Snapshot
+  price       Decimal @db.Decimal(10, 2)
+  quantity    Int
+  subtotal    Decimal @db.Decimal(10, 2)
+  
+  @@index([orderId])
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+  reviewer  User     @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
+  reviewerId String
+  order     Order?   @relation(fields: [orderId], references: [id])
+  orderId   String?
+  
+  rating    Int      // 1-5 stars
+  comment   String?  @db.Text
+  isHidden  Boolean  @default(false)  // Admin can hide inappropriate reviews
+  createdAt DateTime @default(now())
+  
+  @@index([productId])
+  @@index([isHidden])
+  @@unique([reviewerId, productId]) // One review per user per product
 }
 
