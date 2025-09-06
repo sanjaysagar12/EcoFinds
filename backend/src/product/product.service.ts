@@ -8,6 +8,8 @@ export interface ProductFilters {
   sellerId?: string;
   isActive?: boolean;
   search?: string;
+  condition?: string;
+  brand?: string;
 }
 
 export interface PaginationOptions {

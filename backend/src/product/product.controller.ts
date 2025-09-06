@@ -93,6 +93,8 @@ export class ProductController {
     @Query('sellerId') sellerId?: string,
     @Query('isActive') isActive?: string,
     @Query('search') search?: string,
+    @Query('condition') condition?: string,
+    @Query('brand') brand?: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
   ) {
@@ -103,6 +105,8 @@ export class ProductController {
       sellerId,
       isActive: isActive ? isActive === 'true' : undefined,
       search,
+      condition,
+      brand,
     };
 
     const pagination: PaginationOptions = {
