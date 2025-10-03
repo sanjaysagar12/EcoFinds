@@ -1,3 +1,4 @@
+import { API } from '@/lib/apt';
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -121,7 +122,7 @@ export default function CreateProductPage() {
     const form = new FormData();
     form.append('file', file);
     try {
-      const res = await fetch('http://localhost:3000/s3/image', {
+    const res = await fetch(API.S3_IMAGE_UPLOAD, {
         method: 'POST',
         body: form,
       });
@@ -287,7 +288,7 @@ export default function CreateProductPage() {
         form.append('images', JSON.stringify(formData.images));
       }
 
-      const response = await fetch('http://localhost:3000/api/products', {
+  const response = await fetch(API.PRODUCTS, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

@@ -1,3 +1,4 @@
+import { API } from '@/lib/apt';
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -68,7 +69,7 @@ export default function ProfilePage() {
         return;
       }
 
-      const response = await fetch('http://localhost:3000/api/user/me', {
+  const response = await fetch(API.USER_ME, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -103,7 +104,7 @@ export default function ProfilePage() {
       
       if (!token) return;
 
-      const response = await fetch('http://localhost:3000/api/address', {
+  const response = await fetch(API.ADDRESS, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -127,7 +128,7 @@ export default function ProfilePage() {
     
     try {
       const token = localStorage.getItem('auth_token');
-      const response = await fetch(`http://localhost:3000/api/address/${addressId}`, {
+  const response = await fetch(API.ADDRESS_DETAIL(addressId), {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -150,7 +151,7 @@ export default function ProfilePage() {
   const handleSetDefaultAddress = async (addressId: string) => {
     try {
       const token = localStorage.getItem('auth_token');
-      const response = await fetch(`http://localhost:3000/api/address/${addressId}`, {
+  const response = await fetch(API.ADDRESS_DETAIL(addressId), {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -183,7 +184,7 @@ export default function ProfilePage() {
       }
 
       const token = localStorage.getItem('auth_token');
-      const response = await fetch('http://localhost:3000/api/address', {
+  const response = await fetch(API.ADDRESS, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -254,7 +255,7 @@ export default function ProfilePage() {
   const handleSave = async () => {
     try {
       const token = localStorage.getItem('auth_token');
-      const response = await fetch('http://localhost:3000/api/user/profile', {
+  const response = await fetch(API.USER_PROFILE, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

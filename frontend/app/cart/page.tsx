@@ -1,3 +1,4 @@
+import { API } from '@/lib/apt';
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -73,7 +74,7 @@ export default function CartPage() {
         return;
       }
 
-      const response = await fetch('http://localhost:3000/api/cart', {
+  const response = await fetch(API.CART, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -108,7 +109,7 @@ export default function CartPage() {
         return;
       }
 
-      const response = await fetch(`http://localhost:3000/api/cart/${cartItemId}`, {
+  const response = await fetch(API.CART_ITEM(cartItemId), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -145,7 +146,7 @@ export default function CartPage() {
         return;
       }
 
-      const response = await fetch(`http://localhost:3000/api/cart/${cartItemId}`, {
+  const response = await fetch(API.CART_ITEM(cartItemId), {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -180,7 +181,7 @@ export default function CartPage() {
         return;
       }
 
-      const response = await fetch('http://localhost:3000/api/cart', {
+  const response = await fetch(API.CART, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,

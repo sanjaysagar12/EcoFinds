@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { API } from '@/lib/apt';
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -44,7 +45,7 @@ export default function RegisterPage() {
     }
 
     try {
-      const response = await fetch('http://localhost:3000/api/auth/register', {
+  const response = await fetch(API.REGISTER, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -81,7 +82,7 @@ export default function RegisterPage() {
 
   const handleGoogleRegister = () => {
     // Redirect to Google OAuth
-    window.location.href = 'http://localhost:3000/api/auth/google/signin';
+  window.location.href = API.GOOGLE_SIGNIN;
   };
 
   return (

@@ -1,3 +1,4 @@
+import { API } from '@/lib/apt';
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -97,7 +98,7 @@ export default function ProductsPage() {
       if (filters.sellerId) params.append('sellerId', filters.sellerId);
       if (filters.isActive) params.append('isActive', filters.isActive);
 
-      const response = await fetch(`http://localhost:3000/api/products?${params.toString()}`);
+  const response = await fetch(`${API.PRODUCTS}?${params.toString()}`);
 
       if (response.ok) {
         const data: ProductsResponse = await response.json();

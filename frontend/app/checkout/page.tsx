@@ -1,3 +1,4 @@
+import { API } from '@/lib/apt';
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -82,7 +83,7 @@ export default function CheckoutPage() {
     setError('');
 
     try {
-      const response = await fetch(`http://localhost:3000/api/products/${productId}`);
+  const response = await fetch(API.PRODUCT_DETAIL(productId || '' ));
 
       if (response.ok) {
         const data = await response.json();
@@ -125,7 +126,7 @@ export default function CheckoutPage() {
         return;
       }
 
-      const response = await fetch('http://localhost:3000/api/cart', {
+  const response = await fetch(API.CART, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -189,7 +190,7 @@ export default function CheckoutPage() {
         shippingInfo: JSON.stringify(shippingInfo),
       };
 
-      const response = await fetch('http://localhost:3000/api/orders', {
+  const response = await fetch(API.ORDERS, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -201,7 +202,7 @@ export default function CheckoutPage() {
       if (response.ok) {
         // Clear cart if this was a cart checkout
         if (!productId) {
-          await fetch('http://localhost:3000/api/cart', {
+          await fetch(API.CART, {
             method: 'DELETE',
             headers: {
               Authorization: `Bearer ${token}`,

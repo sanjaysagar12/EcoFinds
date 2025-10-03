@@ -1,3 +1,4 @@
+import { API } from '@/lib/apt';
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -87,7 +88,7 @@ export default function ProductDetailPage() {
     setError('');
 
     try {
-      const response = await fetch(`http://localhost:3000/api/products/${productId}`);
+  const response = await fetch(API.PRODUCT_DETAIL(productId));
 
       if (response.ok) {
         const data: ProductResponse = await response.json();
@@ -136,7 +137,7 @@ export default function ProductDetailPage() {
         quantity: quantity,
       };
 
-      const response = await fetch('http://localhost:3000/api/cart', {
+  const response = await fetch(API.CART, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

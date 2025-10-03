@@ -1,3 +1,4 @@
+import { API } from '@/lib/apt';
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -111,7 +112,7 @@ export default function OrdersPage() {
         params.append('status', statusFilter);
       }
 
-      const response = await fetch(`http://localhost:3000/api/orders?${params.toString()}`, {
+  const response = await fetch(API.ORDERS + '?' + params.toString(), {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -143,7 +144,7 @@ export default function OrdersPage() {
         return;
       }
 
-      const response = await fetch(`http://localhost:3000/api/orders/${orderId}/status`, {
+  const response = await fetch(API.ORDER_STATUS(orderId), {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
