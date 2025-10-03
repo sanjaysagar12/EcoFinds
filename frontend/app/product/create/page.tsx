@@ -135,19 +135,31 @@ export default function CreateProductPage() {
     }
   };
 
-  // Add selected files as additional images (upload to backend, store URLs)
-  const handleAdditionalImages = async (files: FileList | null) => {
+  // Handle file selection for additional images (preview before upload)
+  const handleAdditionalImageFiles = (files: FileList | null) => {
     if (!files || files.length === 0) return;
+    setAdditionalImageFiles(prev => [...prev, ...Array.from(files)]);
+  };
+
+  // Remove a file from the additional images selection
+  const removeAdditionalImageFile = (index: number) => {
+    setAdditionalImageFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  // Upload all selected additional image files
+  const uploadSelectedAdditionalImages = async () => {
+    if (additionalImageFiles.length === 0) return;
     setUploadingImages(true);
     const urls: string[] = [];
-    for (let i = 0; i < files.length; i++) {
-      const url = await uploadImageFile(files[i]);
+    for (let i = 0; i < additionalImageFiles.length; i++) {
+      const url = await uploadImageFile(additionalImageFiles[i]);
       if (url) urls.push(url);
     }
     setFormData(prev => ({
       ...prev,
       images: [...prev.images, ...urls],
     }));
+    setAdditionalImageFiles([]);
     setUploadingImages(false);
   };
 
@@ -260,13 +272,19 @@ export default function CreateProductPage() {
       if (formData.stock) {
         form.append('stock', formData.stock);
       }
-      // Add images as JSON string (for future multi-image support)
+
+      // Add all image files (thumbnail first, then additional)
+      if (thumbnailFile) {
+        form.append('images', thumbnailFile);
+      }
+      if (additionalImageFiles.length > 0) {
+        additionalImageFiles.forEach(file => {
+          form.append('images', file);
+        });
+      }
+      // Add image URLs (if any) as JSON string (legacy/optional)
       if (formData.images.length > 0) {
         form.append('images', JSON.stringify(formData.images));
-      }
-      // Add thumbnail file if present
-      if (thumbnailFile) {
-        form.append('image', thumbnailFile);
       }
 
       const response = await fetch('http://localhost:3000/api/products', {
@@ -733,10 +751,41 @@ export default function CreateProductPage() {
                     type="file"
                     accept="image/*"
                     multiple
-                    onChange={e => handleAdditionalImages(e.target.files)}
+                    onChange={e => handleAdditionalImageFiles(e.target.files)}
                     className="mb-2"
                   />
-                  {uploadingImages && (
+                  {additionalImageFiles.length > 0 && (
+                    <div className="mb-2">
+                      <div className="flex flex-wrap gap-2">
+                        {additionalImageFiles.map((file, idx) => (
+                          <div key={idx} className="relative inline-block">
+                            <img
+                              src={URL.createObjectURL(file)}
+                              alt={`Preview ${idx}`}
+                              className="h-16 w-16 object-cover rounded border"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeAdditionalImageFile(idx)}
+                              className="absolute top-0 right-0 bg-white bg-opacity-80 rounded-full text-red-600 px-1 py-0.5 text-xs"
+                              title="Remove"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={uploadSelectedAdditionalImages}
+                        disabled={uploadingImages}
+                        className="mt-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
+                      >
+                        {uploadingImages ? 'Uploading...' : 'Upload Selected Images'}
+                      </button>
+                    </div>
+                  )}
+                  {uploadingImages && additionalImageFiles.length === 0 && (
                     <div className="text-sm text-blue-600 mb-2">Uploading images...</div>
                   )}
                   <div className="flex space-x-2 mb-2">

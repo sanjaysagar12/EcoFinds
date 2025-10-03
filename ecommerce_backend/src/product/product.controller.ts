@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Post, Put, Delete, Query, UseGuards, Logger, Param, UploadedFile, UseInterceptors, BadRequestException } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { Body, Controller, Get, Post, Put, Delete, Query, UseGuards, Logger, Param, UploadedFile, UploadedFiles, UseInterceptors, BadRequestException } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { ProductService, ProductFilters, PaginationOptions } from './product.service';
 import { CreateProductDto, UpdateProductDto } from './dto';
 import { JwtGuard } from 'src/application/common/guards/jwt.guard';
@@ -21,27 +21,35 @@ export class ProductController {
   @Post()
   @UseGuards(JwtGuard, RolesGuard)
   @Roles(Role.USER, Role.ADMIN)
-  @UseInterceptors(FileInterceptor('image'))
+  @UseInterceptors(FilesInterceptor('images', 10))
   async createProduct(
-    @UploadedFile() file: any,
+    @UploadedFiles() imagesFiles: any[],
     @Body() createProductDto: CreateProductDto,
     @GetUser('sub') userId: string,
   ) {
     this.logger.log(`User ${userId} creating a new product: ${createProductDto.title}`);
 
     let thumbnailUrl: string | undefined = undefined;
-    if (file) {
-      // Validate file type and size
-      const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-      if (!allowedMimeTypes.includes(file.mimetype)) {
-        throw new BadRequestException('Only image files are allowed');
+    let additionalImageUrls: string[] = [];
+    if (imagesFiles && imagesFiles.length > 0) {
+      for (let i = 0; i < imagesFiles.length; i++) {
+        const imgFile = imagesFiles[i];
+        // Validate file type and size
+        const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        if (!allowedMimeTypes.includes(imgFile.mimetype)) {
+          continue;
+        }
+        const maxSize = 5 * 1024 * 1024;
+        if (imgFile.size > maxSize) {
+          continue;
+        }
+        const url = await this.s3Service.uploadFile(imgFile, 'images');
+        if (i === 0) {
+          thumbnailUrl = url;
+        } else if (url) {
+          additionalImageUrls.push(url);
+        }
       }
-      const maxSize = 5 * 1024 * 1024;
-      if (file.size > maxSize) {
-        throw new BadRequestException('File size must be less than 5MB');
-      }
-      // Upload to S3/MinIO
-      thumbnailUrl = await this.s3Service.uploadFile(file, 'images');
     }
 
     // Parse fields to correct types
@@ -60,7 +68,14 @@ export class ProductController {
       manualIncluded: typeof createProductDto.manualIncluded === 'string' ? createProductDto.manualIncluded === 'true' : false,
       stock: createProductDto.stock ? parseInt(createProductDto.stock as any, 10) : 0,
       isActive: typeof createProductDto.isActive === 'string' ? createProductDto.isActive === 'true' : true,
-      images: typeof createProductDto.images === 'string' ? JSON.parse(createProductDto.images) : (createProductDto.images || []),
+      images: [
+        ...(
+          typeof createProductDto.images === 'string'
+            ? JSON.parse(createProductDto.images)
+            : (createProductDto.images || [])
+        ),
+        ...additionalImageUrls
+      ],
     };
 
     const product = await this.productService.createProduct(productData);
