@@ -1,33 +1,70 @@
-import { Body, Controller, Get, Post, Put, Delete, Query, UseGuards, Logger, Param } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, Delete, Query, UseGuards, Logger, Param, UploadedFile, UseInterceptors, BadRequestException } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ProductService, ProductFilters, PaginationOptions } from './product.service';
 import { CreateProductDto, UpdateProductDto } from './dto';
 import { JwtGuard } from 'src/application/common/guards/jwt.guard';
 import { RolesGuard } from 'src/application/common/guards/roles.guard';
 import { Roles, Role } from 'src/application/common/decorator/roles.decorator';
 import { GetUser } from 'src/application/common/decorator/get-user.decorator';
+import { S3Service } from '../s3/s3.service';
+
 
 @Controller('api/products')
 export class ProductController {
   private readonly logger = new Logger(ProductController.name);
-  
-  constructor(private readonly productService: ProductService) {}
+
+  constructor(
+    private readonly productService: ProductService,
+    private readonly s3Service: S3Service,
+  ) {}
 
   @Post()
   @UseGuards(JwtGuard, RolesGuard)
   @Roles(Role.USER, Role.ADMIN)
+  @UseInterceptors(FileInterceptor('image'))
   async createProduct(
+    @UploadedFile() file: any,
     @Body() createProductDto: CreateProductDto,
     @GetUser('sub') userId: string,
   ) {
     this.logger.log(`User ${userId} creating a new product: ${createProductDto.title}`);
-    
+
+    let thumbnailUrl: string | undefined = undefined;
+    if (file) {
+      // Validate file type and size
+      const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+      if (!allowedMimeTypes.includes(file.mimetype)) {
+        throw new BadRequestException('Only image files are allowed');
+      }
+      const maxSize = 5 * 1024 * 1024;
+      if (file.size > maxSize) {
+        throw new BadRequestException('File size must be less than 5MB');
+      }
+      // Upload to S3/MinIO
+      thumbnailUrl = await this.s3Service.uploadFile(file, 'images');
+    }
+
+    // Parse fields to correct types
     const productData = {
       ...createProductDto,
       sellerId: userId,
+      thumbnail: thumbnailUrl,
+      price: createProductDto.price ? parseFloat(createProductDto.price as any) : 0,
+      quantity: createProductDto.quantity ? parseInt(createProductDto.quantity as any, 10) : 0,
+      yearOfManufacture: createProductDto.yearOfManufacture ? parseInt(createProductDto.yearOfManufacture as any, 10) : undefined,
+      dimensionLength: createProductDto.dimensionLength ? parseFloat(createProductDto.dimensionLength as any) : undefined,
+      dimensionWidth: createProductDto.dimensionWidth ? parseFloat(createProductDto.dimensionWidth as any) : undefined,
+      dimensionHeight: createProductDto.dimensionHeight ? parseFloat(createProductDto.dimensionHeight as any) : undefined,
+      weight: createProductDto.weight ? parseFloat(createProductDto.weight as any) : undefined,
+      originalPackaging: typeof createProductDto.originalPackaging === 'string' ? createProductDto.originalPackaging === 'true' : false,
+      manualIncluded: typeof createProductDto.manualIncluded === 'string' ? createProductDto.manualIncluded === 'true' : false,
+      stock: createProductDto.stock ? parseInt(createProductDto.stock as any, 10) : 0,
+      isActive: typeof createProductDto.isActive === 'string' ? createProductDto.isActive === 'true' : true,
+      images: typeof createProductDto.images === 'string' ? JSON.parse(createProductDto.images) : (createProductDto.images || []),
     };
-    
+
     const product = await this.productService.createProduct(productData);
-    
+
     return {
       status: 'success',
       message: 'Product created successfully',

@@ -79,6 +79,9 @@ const conditions = [
 export default function CreateProductPage() {
   const [formData, setFormData] = useState<ProductFormData>(initialFormData);
   const [imageInput, setImageInput] = useState('');
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [additionalImageFiles, setAdditionalImageFiles] = useState<File[]>([]);
+  const [uploadingImages, setUploadingImages] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -112,6 +115,43 @@ export default function CreateProductPage() {
     }
   };
 
+
+  // Upload a single image file to backend S3 endpoint
+  const uploadImageFile = async (file: File): Promise<string | null> => {
+    const form = new FormData();
+    form.append('file', file);
+    try {
+      const res = await fetch('http://localhost:3000/s3/image', {
+        method: 'POST',
+        body: form,
+      });
+      const data = await res.json();
+      if (res.ok && data?.data?.imageUrl) {
+        return data.data.imageUrl;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  };
+
+  // Add selected files as additional images (upload to backend, store URLs)
+  const handleAdditionalImages = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    setUploadingImages(true);
+    const urls: string[] = [];
+    for (let i = 0; i < files.length; i++) {
+      const url = await uploadImageFile(files[i]);
+      if (url) urls.push(url);
+    }
+    setFormData(prev => ({
+      ...prev,
+      images: [...prev.images, ...urls],
+    }));
+    setUploadingImages(false);
+  };
+
+  // Add image by URL (optional, legacy)
   const addImage = () => {
     if (imageInput.trim() && !formData.images.includes(imageInput.trim())) {
       setFormData(prev => ({
@@ -175,68 +215,66 @@ export default function CreateProductPage() {
         return;
       }
 
-      // Prepare data for API
-      const productData: any = {
-        title: formData.title.trim(),
-        category: formData.category,
-        description: formData.description.trim(),
-        price: parseFloat(formData.price),
-        quantity: parseInt(formData.quantity),
-        condition: formData.condition,
-        originalPackaging: formData.originalPackaging,
-        manualIncluded: formData.manualIncluded,
-        isActive: formData.isActive,
-      };
+      // Prepare FormData for multipart/form-data
+      const form = new FormData();
+      form.append('title', formData.title.trim());
+      form.append('category', formData.category);
+      form.append('description', formData.description.trim());
+      form.append('price', formData.price);
+      form.append('quantity', formData.quantity);
+      form.append('condition', formData.condition);
+      form.append('originalPackaging', String(formData.originalPackaging));
+      form.append('manualIncluded', String(formData.manualIncluded));
+      form.append('isActive', String(formData.isActive));
 
-      // Add optional fields only if they have values
       if (formData.yearOfManufacture) {
-        productData.yearOfManufacture = parseInt(formData.yearOfManufacture);
+        form.append('yearOfManufacture', formData.yearOfManufacture);
       }
       if (formData.brand.trim()) {
-        productData.brand = formData.brand.trim();
+        form.append('brand', formData.brand.trim());
       }
       if (formData.model.trim()) {
-        productData.model = formData.model.trim();
+        form.append('model', formData.model.trim());
       }
       if (formData.dimensionLength) {
-        productData.dimensionLength = parseFloat(formData.dimensionLength);
+        form.append('dimensionLength', formData.dimensionLength);
       }
       if (formData.dimensionWidth) {
-        productData.dimensionWidth = parseFloat(formData.dimensionWidth);
+        form.append('dimensionWidth', formData.dimensionWidth);
       }
       if (formData.dimensionHeight) {
-        productData.dimensionHeight = parseFloat(formData.dimensionHeight);
+        form.append('dimensionHeight', formData.dimensionHeight);
       }
       if (formData.weight) {
-        productData.weight = parseFloat(formData.weight);
+        form.append('weight', formData.weight);
       }
       if (formData.material.trim()) {
-        productData.material = formData.material.trim();
+        form.append('material', formData.material.trim());
       }
       if (formData.color.trim()) {
-        productData.color = formData.color.trim();
+        form.append('color', formData.color.trim());
       }
       if (formData.workingConditionDesc.trim()) {
-        productData.workingConditionDesc = formData.workingConditionDesc.trim();
-      }
-      if (formData.thumbnail.trim()) {
-        productData.thumbnail = formData.thumbnail.trim();
-      }
-      if (formData.images.length > 0) {
-        productData.images = formData.images;
+        form.append('workingConditionDesc', formData.workingConditionDesc.trim());
       }
       if (formData.stock) {
-        productData.stock = parseInt(formData.stock);
+        form.append('stock', formData.stock);
+      }
+      // Add images as JSON string (for future multi-image support)
+      if (formData.images.length > 0) {
+        form.append('images', JSON.stringify(formData.images));
+      }
+      // Add thumbnail file if present
+      if (thumbnailFile) {
+        form.append('image', thumbnailFile);
       }
 
-      // Make API call to create product
       const response = await fetch('http://localhost:3000/api/products', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(productData)
+        body: form
       });
 
       const result = await response.json();
@@ -247,10 +285,10 @@ export default function CreateProductPage() {
 
       setSuccess('Product created successfully!');
       setFormData(initialFormData);
-      
+      setThumbnailFile(null);
       // Redirect to the created product or products list after a delay
       setTimeout(() => {
-        router.push('/profile'); // or wherever you want to redirect
+        router.push('/profile');
       }, 2000);
 
     } catch (err: any) {
@@ -663,24 +701,45 @@ export default function CreateProductPage() {
               <div className="space-y-4">
                 <div>
                   <label htmlFor="thumbnail" className="block text-sm font-medium text-gray-700 mb-2">
-                    Thumbnail Image URL
+                    Thumbnail Image (Upload)
                   </label>
                   <input
-                    type="url"
+                    type="file"
                     id="thumbnail"
                     name="thumbnail"
-                    value={formData.thumbnail}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 placeholder-gray-500 text-gray-900"
-                    placeholder="Main product image URL (e.g., https://example.com/image.jpg)"
+                    accept="image/*"
+                    onChange={e => {
+                      if (e.target.files && e.target.files[0]) {
+                        setThumbnailFile(e.target.files[0]);
+                        // Optionally, show preview
+                        setFormData(prev => ({ ...prev, thumbnail: URL.createObjectURL(e.target.files![0]) }));
+                      } else {
+                        setThumbnailFile(null);
+                        setFormData(prev => ({ ...prev, thumbnail: '' }));
+                      }
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900"
                   />
+                  {formData.thumbnail && (
+                    <img src={formData.thumbnail} alt="Thumbnail Preview" className="mt-2 h-24 rounded border" />
+                  )}
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Additional Images
+                    Additional Images (Upload or URL)
                   </label>
-                  <div className="flex space-x-2">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={e => handleAdditionalImages(e.target.files)}
+                    className="mb-2"
+                  />
+                  {uploadingImages && (
+                    <div className="text-sm text-blue-600 mb-2">Uploading images...</div>
+                  )}
+                  <div className="flex space-x-2 mb-2">
                     <input
                       type="url"
                       value={imageInput}
@@ -696,12 +755,18 @@ export default function CreateProductPage() {
                       Add
                     </button>
                   </div>
-                  
                   {formData.images.length > 0 && (
                     <div className="mt-3 space-y-2">
                       {formData.images.map((img, index) => (
                         <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded">
-                          <span className="text-sm text-gray-700 truncate flex-1">{img}</span>
+                          <span className="text-sm text-gray-700 truncate flex-1">
+                            {img.startsWith('http') ? (
+                              <a href={img} target="_blank" rel="noopener noreferrer" className="underline text-blue-600">{img}</a>
+                            ) : img}
+                          </span>
+                          {img.startsWith('http') && (
+                            <img src={img} alt="Preview" className="h-10 w-10 object-cover rounded ml-2 border" />
+                          )}
                           <button
                             type="button"
                             onClick={() => removeImage(index)}
