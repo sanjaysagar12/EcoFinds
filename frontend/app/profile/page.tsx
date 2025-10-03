@@ -1,7 +1,7 @@
-import { API } from '@/lib/apt';
-'use client';
 
-import { useState, useEffect } from 'react';
+'use client';
+import { API } from '@/lib/apt';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
@@ -56,12 +56,7 @@ export default function ProfilePage() {
   });
   const router = useRouter();
 
-  useEffect(() => {
-    fetchUserProfile();
-    fetchAddresses();
-  }, []);
-
-  const fetchUserProfile = async () => {
+  const fetchUserProfile = useCallback(async () => {
     try {
       const token = localStorage.getItem('auth_token');
       if (!token) {
@@ -91,11 +86,17 @@ export default function ProfilePage() {
         setError('Failed to fetch profile');
       }
     } catch (err) {
+      console.log(err);
       setError('An error occurred while fetching profile');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [router]);
+
+  useEffect(() => {
+    fetchUserProfile();
+    fetchAddresses();
+  }, [fetchUserProfile]);
 
   const fetchAddresses = async () => {
     try {
@@ -275,6 +276,7 @@ export default function ProfilePage() {
         setError(errorData.message || 'Failed to update profile');
       }
     } catch (err) {
+      console.log(err);
       setError('An error occurred while updating profile');
     }
   };

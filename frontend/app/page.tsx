@@ -1,6 +1,5 @@
-import { API } from '@/lib/apt';
 "use client";
-
+import { API } from '@/lib/apt';
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -75,6 +74,7 @@ export default function HomePage() {
         const data = await res.json();
         setProducts(data.products || []);
       } catch (err) {
+        console.log(err);
         setError("Could not load products");
       } finally {
         setLoading(false);

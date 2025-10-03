@@ -1,6 +1,5 @@
+"use client";
 import { API } from '@/lib/apt';
-'use client';
-
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -108,6 +107,7 @@ export default function ProductsPage() {
         setError('Failed to fetch products');
       }
     } catch (err) {
+      console.log(err);
       setError('An error occurred while fetching products');
     } finally {
       setIsLoading(false);
@@ -116,7 +116,7 @@ export default function ProductsPage() {
 
   useEffect(() => {
     fetchProducts(1);
-  }, [filters]);
+  }, [filters, fetchProducts]);
 
   const handleFilterChange = (newFilters: FilterValues) => {
     setFilters(newFilters);

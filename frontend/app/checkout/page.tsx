@@ -1,7 +1,6 @@
+"use client";
 import { API } from '@/lib/apt';
-'use client';
-
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -41,7 +40,7 @@ interface ShippingInfo {
   phoneNumber?: string;
 }
 
-export default function CheckoutPage() {
+function CheckoutComponent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
@@ -61,24 +60,7 @@ export default function CheckoutPage() {
   const productId = searchParams.get('productId');
   const quantity = searchParams.get('quantity');
 
-  useEffect(() => {
-    // Check if user is logged in
-    const token = localStorage.getItem('auth_token');
-    if (!token) {
-      router.push('/auth/login');
-      return;
-    }
-
-    if (productId && quantity) {
-      // Direct product purchase
-      fetchSingleProduct();
-    } else {
-      // Cart checkout
-      fetchCartItems();
-    }
-  }, [productId, quantity]);
-
-  const fetchSingleProduct = async () => {
+  const fetchSingleProduct = useCallback(async () => {
     setIsLoading(true);
     setError('');
 
@@ -109,13 +91,14 @@ export default function CheckoutPage() {
         setError(errorData.message || 'Failed to fetch product');
       }
     } catch (err) {
+      console.log(err);
       setError('An error occurred while fetching product');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [productId, quantity]);
 
-  const fetchCartItems = async () => {
+  const fetchCartItems = useCallback(async () => {
     setIsLoading(true);
     setError('');
 
@@ -155,11 +138,29 @@ export default function CheckoutPage() {
         setError(errorData.message || 'Failed to fetch cart');
       }
     } catch (err) {
+      console.log(err);
       setError('An error occurred while fetching cart');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [router]);
+
+  useEffect(() => {
+    // Check if user is logged in
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      router.push('/auth/login');
+      return;
+    }
+
+    if (productId && quantity) {
+      // Direct product purchase
+      fetchSingleProduct();
+    } else {
+      // Cart checkout
+      fetchCartItems();
+    }
+  }, [productId, quantity, fetchCartItems, fetchSingleProduct, router]);
 
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -217,6 +218,7 @@ export default function CheckoutPage() {
         setError(errorData.message || 'Failed to place order');
       }
     } catch (err) {
+      console.log(err);
       setError('An error occurred while placing the order');
     } finally {
       setIsPlacingOrder(false);
@@ -499,5 +501,20 @@ export default function CheckoutPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading checkout...</p>
+        </div>
+      </div>
+    }>
+      <CheckoutComponent />
+    </Suspense>
   );
 }

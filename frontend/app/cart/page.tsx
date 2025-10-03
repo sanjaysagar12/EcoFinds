@@ -1,7 +1,7 @@
-import { API } from '@/lib/apt';
-'use client';
 
-import { useState, useEffect } from 'react';
+'use client';
+import { API } from '@/lib/apt';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -44,26 +44,16 @@ interface CartResponse {
   data: Cart;
 }
 
+
 export default function CartPage() {
   const router = useRouter();
   const [cart, setCart] = useState<Cart | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [updatingItems, setUpdatingItems] = useState<Set<string>>(new Set());
-  const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [isCheckingOut] = useState(false); // Restored for usage in JSX, but setter removed to avoid ESLint warning
 
-  useEffect(() => {
-    // Check if user is logged in
-    const token = localStorage.getItem('auth_token');
-    if (!token) {
-      router.push('/auth/login');
-      return;
-    }
-    
-    fetchCart();
-  }, []);
-
-  const fetchCart = async () => {
+  const fetchCart = useCallback(async () => {
     setIsLoading(true);
     setError('');
 
@@ -74,7 +64,7 @@ export default function CartPage() {
         return;
       }
 
-  const response = await fetch(API.CART, {
+      const response = await fetch(API.CART, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -90,12 +80,22 @@ export default function CartPage() {
         const errorData = await response.json();
         setError(errorData.message || 'Failed to fetch cart');
       }
-    } catch (err) {
+    } catch {
       setError('An error occurred while fetching cart');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [router]);
+
+  useEffect(() => {
+    // Check if user is logged in
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      router.push('/auth/login');
+      return;
+    }
+    fetchCart();
+  }, [fetchCart, router]);
 
   const updateCartItem = async (cartItemId: string, quantity: number) => {
     if (quantity < 1) return;
@@ -125,7 +125,7 @@ export default function CartPage() {
         const errorData = await response.json();
         setError(errorData.message || 'Failed to update cart item');
       }
-    } catch (err) {
+    } catch {
       setError('An error occurred while updating cart item');
     } finally {
       setUpdatingItems(prev => {
@@ -160,7 +160,7 @@ export default function CartPage() {
         const errorData = await response.json();
         setError(errorData.message || 'Failed to remove cart item');
       }
-    } catch (err) {
+    } catch {
       setError('An error occurred while removing cart item');
     } finally {
       setUpdatingItems(prev => {
@@ -195,7 +195,7 @@ export default function CartPage() {
         const errorData = await response.json();
         setError(errorData.message || 'Failed to clear cart');
       }
-    } catch (err) {
+    } catch {
       setError('An error occurred while clearing cart');
     }
   };

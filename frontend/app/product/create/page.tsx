@@ -1,8 +1,8 @@
+"use client";
 import { API } from '@/lib/apt';
-'use client';
-
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 interface ProductFormData {
   title: string;
@@ -310,8 +310,12 @@ export default function CreateProductPage() {
         router.push('/profile');
       }, 2000);
 
-    } catch (err: any) {
-      setError(err.message || 'An error occurred while creating the product');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || 'An error occurred while creating the product');
+      } else {
+        setError('An error occurred while creating the product');
+      }
     } finally {
       setLoading(false);
     }
@@ -740,7 +744,7 @@ export default function CreateProductPage() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900"
                   />
                   {formData.thumbnail && (
-                    <img src={formData.thumbnail} alt="Thumbnail Preview" className="mt-2 h-24 rounded border" />
+                    <Image src={formData.thumbnail} alt="Thumbnail Preview" width={96} height={96} className="mt-2 h-24 rounded border" />
                   )}
                 </div>
 
@@ -760,9 +764,11 @@ export default function CreateProductPage() {
                       <div className="flex flex-wrap gap-2">
                         {additionalImageFiles.map((file, idx) => (
                           <div key={idx} className="relative inline-block">
-                            <img
+                            <Image
                               src={URL.createObjectURL(file)}
                               alt={`Preview ${idx}`}
+                              width={64}
+                              height={64}
                               className="h-16 w-16 object-cover rounded border"
                             />
                             <button
@@ -815,7 +821,7 @@ export default function CreateProductPage() {
                             ) : img}
                           </span>
                           {img.startsWith('http') && (
-                            <img src={img} alt="Preview" className="h-10 w-10 object-cover rounded ml-2 border" />
+                            <Image src={img} alt="Preview" width={40} height={40} className="h-10 w-10 object-cover rounded ml-2 border" />
                           )}
                           <button
                             type="button"

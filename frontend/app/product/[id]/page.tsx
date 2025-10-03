@@ -1,7 +1,6 @@
+"use client";
 import { API } from '@/lib/apt';
-'use client';
-
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -72,18 +71,13 @@ export default function ProductDetailPage() {
   const [error, setError] = useState('');
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [isOrdering, setIsOrdering] = useState(false);
-  const [orderSuccess, setOrderSuccess] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [cartSuccess, setCartSuccess] = useState(false);
 
-  useEffect(() => {
-    if (productId) {
-      fetchProduct();
-    }
-  }, [productId]);
+  const isOrdering = false;
+  const orderSuccess = false;
 
-  const fetchProduct = async () => {
+  const fetchProduct = useCallback(async () => {
     setIsLoading(true);
     setError('');
 
@@ -98,11 +92,18 @@ export default function ProductDetailPage() {
         setError(errorData.message || 'Failed to fetch product');
       }
     } catch (err) {
+      console.log(err);
       setError('An error occurred while fetching the product');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [productId]);
+
+  useEffect(() => {
+    if (productId) {
+      fetchProduct();
+    }
+  }, [productId, fetchProduct]);
 
   const handleBuyNow = async () => {
     if (!product) return;
@@ -156,6 +157,7 @@ export default function ProductDetailPage() {
         setError(errorData.message || 'Failed to add to cart');
       }
     } catch (err) {
+      console.log(err);
       setError('An error occurred while adding to cart');
     } finally {
       setIsAddingToCart(false);

@@ -1,7 +1,6 @@
+"use client";
 import { API } from '@/lib/apt';
-'use client';
-
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -81,18 +80,7 @@ export default function OrdersPage() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [showModal, setShowModal] = useState(false);
 
-  useEffect(() => {
-    // Check if user is logged in
-    const token = localStorage.getItem('auth_token');
-    if (!token) {
-      router.push('/auth/login');
-      return;
-    }
-    
-    fetchOrders();
-  }, [statusFilter, pagination.page]);
-
-  const fetchOrders = async (page = 1) => {
+  const fetchOrders = useCallback(async (page = 1) => {
     setIsLoading(true);
     setError('');
 
@@ -130,11 +118,23 @@ export default function OrdersPage() {
         setError(errorData.message || 'Failed to fetch orders');
       }
     } catch (err) {
+      console.log(err);
       setError('An error occurred while fetching orders');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [pagination.limit, statusFilter, router]);
+
+  useEffect(() => {
+    // Check if user is logged in
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      router.push('/auth/login');
+      return;
+    }
+    
+    fetchOrders();
+  }, [statusFilter, pagination.page, fetchOrders, router]);
 
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
     try {
@@ -162,6 +162,7 @@ export default function OrdersPage() {
         setError(errorData.message || 'Failed to update order status');
       }
     } catch (err) {
+      console.log(err);
       setError('An error occurred while updating order status');
     }
   };

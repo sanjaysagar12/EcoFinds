@@ -1,10 +1,9 @@
-import { API } from '@/lib/apt';
-'use client';
 
-import { useEffect, useState } from 'react';
+"use client";
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function AuthCallbackPage() {
+function CallbackComponent() {
   const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing');
   const [message, setMessage] = useState('Processing authentication...');
   const router = useRouter();
@@ -105,5 +104,21 @@ export default function AuthCallbackPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function AuthCallbackPage() {
+  return (
+    <Suspense fallback={
+      <div
+        className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden"
+        style={{ background: 'linear-gradient(135deg, #F5F5F5 0%, #E0E0E0 100%)' }}
+      >
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1A73E8] mx-auto"></div>
+        <p className="mt-4 text-gray-600">Loading...</p>
+      </div>
+    }>
+      <CallbackComponent />
+    </Suspense>
   );
 }
