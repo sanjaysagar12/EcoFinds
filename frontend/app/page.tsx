@@ -1,9 +1,9 @@
 "use client";
 
-import Image from 'next/image';
-import { useEffect, useState } from 'react';
-import ProductFilter, { FilterValues } from './product/components/ProductFilter';
-import Link from 'next/link';
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { Search, ShoppingBag, User, Menu, X } from "lucide-react";
 
 // Product type based on schema.md
 interface Product {
@@ -43,166 +43,490 @@ interface Product {
   reviewCount?: number;
 }
 
+const navItems = [
+  {
+    title: "Shop",
+    children: [
+      { title: "Best Sellers", url: "/products" },
+    ],
+  },
+  { title: "About", url: "/about" },
+  { title: "Support", url: "/support" },
+];
+
 export default function HomePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filters, setFilters] = useState<FilterValues>({
-    category: '',
-    condition: '',
-    brand: '',
-    minPrice: '',
-    maxPrice: '',
-    search: '',
-    sellerId: '',
-    isActive: '',
-  });
 
-  const handleFilterChange = (newFilters: FilterValues) => {
-    setFilters(newFilters);
-  };
+  // Navbar state for mobile menu and search
+  const [isOpen, setIsOpen] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     async function fetchProducts() {
       setLoading(true);
       setError(null);
       try {
-        const params = new URLSearchParams();
-        if (filters.category) params.append('category', filters.category);
-        if (filters.condition) params.append('condition', filters.condition);
-        if (filters.brand) params.append('brand', filters.brand);
-        if (filters.minPrice) params.append('minPrice', filters.minPrice);
-        if (filters.maxPrice) params.append('maxPrice', filters.maxPrice);
-        if (filters.search) params.append('search', filters.search);
-        if (filters.sellerId) params.append('sellerId', filters.sellerId);
-        if (filters.isActive) params.append('isActive', filters.isActive);
-        const query = params.toString() ? `?${params.toString()}` : '';
-        const res = await fetch(`http://localhost:3000/api/products${query}`);
-        if (!res.ok) throw new Error('Failed to fetch products');
+        const res = await fetch(`http://localhost:3000/api/products`);
+        if (!res.ok) throw new Error("Failed to fetch products");
         const data = await res.json();
         setProducts(data.products || []);
       } catch (err) {
-        setError('Could not load products');
+        setError("Could not load products");
       } finally {
         setLoading(false);
       }
     }
     fetchProducts();
-  }, [filters]);
+  }, []);
+
+  // Handle search submit
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      window.location.href = `/products?q=${encodeURIComponent(searchQuery.trim())}`;
+      setShowSearch(false);
+      setSearchQuery("");
+    }
+  };
+
+  // Close popups when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (showSearch && !target.closest("form")) {
+        setShowSearch(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showSearch]);
 
   return (
-    <main className="bg-white min-h-screen px-0 py-0">
-      {/* Header & Hero Section */}
-      <header className="w-full border-b bg-white px-8 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="inline-block mr-2">
-            <Image src="/logo.jpg" alt="EcoFinds Logo" width={48} height={48} className="rounded-xl" />
-          </span>
-          <span className="text-2xl font-bold text-gray-900">EcoFinds</span>
-          <span className="ml-6 flex items-center text-gray-700 text-base">
-            <svg className="w-5 h-5 mr-1 text-indigo-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 12.414a4 4 0 10-1.414 1.414l4.243 4.243a1 1 0 001.414-1.414z"/></svg>
-            Your city <span className="mx-1 font-semibold">New York, USA</span> <a href="#" className="text-indigo-600 underline ml-1">Change</a>
-          </span>
+    <div className="bg-white">
+      {/* Top Bar */}
+      <div className="bg-white text-gray-700 text-sm py-2">
+        <div className="max-w-7xl mx-auto px-4 text-center">
+          FREE DELIVERY in INDIA for online payments
         </div>
-        <div className="flex items-center">
-          <a href="/profile">
-            <button className="p-2 rounded-full hover:bg-gray-100 transition-colors">
-              <svg className="w-8 h-8 text-gray-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-              </svg>
-            </button>
-          </a>
-        </div>
-      </header>
-
-      {/* Hero Banner */}
-      <section className="w-full flex justify-center bg-white py-8">
-        <div className="relative w-full max-w-6xl rounded-3xl overflow-hidden shadow-lg" style={{minHeight: 400}}>
-          <Image src="/images/hero-burrito.jpg" alt="Lunch Set Box" fill className="object-cover" />
-          <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center pl-16">
-            <div className="max-w-md">
-              <h1 className="text-5xl font-bold text-white mb-4">Lunch Set Box</h1>
-              <p className="text-lg text-white mb-6">
-                This platform is more than just about commerce, it’s about making a positive impact. By encouraging the reuse of products, we reduce waste, lower carbon footprints, and promote a culture of conscious consumption. Every item sold contributes to a more sustainable future.
-              </p>
-              <button className="bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-semibold px-6 py-3 rounded-full text-lg shadow">Order for $9.99</button>
-            </div>
-          </div>
-          {/* Carousel arrows */}
-          <button className="absolute left-4 top-1/2 -translate-y-1/2 bg-white bg-opacity-70 hover:bg-opacity-100 rounded-full p-2 shadow">
-            <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/></svg>
-          </button>
-          <button className="absolute right-4 top-1/2 -translate-y-1/2 bg-white bg-opacity-70 hover:bg-opacity-100 rounded-full p-2 shadow">
-            <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/></svg>
-          </button>
-        </div>
-      </section>
-
-      {/* Features Row */}
-      <section className="w-full flex justify-center mt-4 mb-10">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-6xl">
-          <div className="bg-white rounded-xl shadow p-6 flex items-center gap-4">
-            <span className="inline-block bg-indigo-100 p-3 rounded-full">
-              <svg className="w-8 h-8 text-indigo-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 10h1l2 7a2 2 0 002 2h8a2 2 0 002-2l2-7h1"/></svg>
-            </span>
-            <div>
-              <div className="font-semibold text-gray-900">Quick delivery</div>
-              <div className="text-gray-500 text-sm">All you can do is just order and we can deliver within 5 mins</div>
-            </div>
-          </div>
-          <div className="bg-white rounded-xl shadow p-6 flex items-center gap-4">
-            <span className="inline-block bg-indigo-100 p-3 rounded-full">
-              <svg className="w-8 h-8 text-indigo-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 17v-1a4 4 0 014-4h8a4 4 0 014 4v1"/></svg>
-            </span>
-            <div>
-              <div className="font-semibold text-gray-900">Easy pickup</div>
-              <div className="text-gray-500 text-sm">All you can do is just order and we can deliver within 5 mins</div>
-            </div>
-          </div>
-          <div className="bg-white rounded-xl shadow p-6 flex items-center gap-4">
-            <span className="inline-block bg-indigo-100 p-3 rounded-full">
-              <svg className="w-8 h-8 text-indigo-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-            </span>
-            <div>
-              <div className="font-semibold text-gray-900">Super Dine-in</div>
-              <div className="text-gray-500 text-sm">All you can do is just order and we can deliver within 5 mins</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Product Filter */}
-      <div className="max-w-6xl mx-auto mb-8">
-        <ProductFilter onFilterChange={handleFilterChange} isLoading={loading} />
       </div>
 
-      {/* Most Popular Section */}
-      <h2 className="text-3xl font-semibold mb-6">Most Popular</h2>
-      {loading ? (
-        <div className="text-center text-gray-500">Loading products...</div>
-      ) : error ? (
-        <div className="text-center text-red-500">{error}</div>
-      ) : (
-        <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {products.map((prod) => (
+      {/* Navbar */}
+      <nav className="bg-white shadow-lg sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            {/* Left Side */}
+            <div className="flex items-center">
+              <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="md:hidden p-2 rounded-md text-gray-700 hover:text-gray-900"
+              >
+                {isOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
+              {/* Desktop Navigation */}
+              <div className="hidden md:flex items-center space-x-4 ml-4">
+                {navItems.map((item) => (
+                  <div key={item.title} className="relative group">
+                    {item.children ? (
+                      <>
+                        <button
+                          className={`
+                            px-3 py-2 rounded-md text-sm font-medium
+                            transition-colors duration-200
+                            text-gray-700 hover:text-gray-900
+                          `}
+                        >
+                          {item.title}
+                        </button>
+                        <div className="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                          <div className="py-1">
+                            {item.children.map((child) => (
+                              <Link
+                                key={child.title}
+                                href={child.url}
+                                className={`
+                                  block px-4 py-2 text-sm
+                                  text-gray-700 hover:bg-gray-100
+                                `}
+                              >
+                                {child.title}
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <Link
+                        href={item.url || "#"}
+                        className={`
+                          px-3 py-2 rounded-md text-sm font-medium
+                          transition-colors duration-200
+                          text-gray-700 hover:text-gray-900
+                        `}
+                      >
+                        {item.title}
+                      </Link>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Center - Logo */}
             <Link
-              key={prod.id}
-              href={`/product/${prod.id}`}
-              className="bg-white rounded-2xl shadow-md p-6 flex flex-col items-center relative transition-transform hover:scale-105 hover:shadow-lg focus:outline-none"
+              href="/"
+              className="absolute left-1/2 transform -translate-x-1/2"
             >
-              <div className="relative w-48 h-48 mb-4 flex items-center justify-center">
-                <Image src={prod.thumbnail || '/images/placeholder.png'} alt={prod.title} fill className="object-contain rounded-xl" />
-              </div>
-              <div className="w-full text-left">
-                <div className="text-indigo-600 font-semibold text-lg mb-1">{prod.price} ₹</div>
-                <div className="font-medium text-gray-900 mb-1">{prod.title}</div>
-                <div className="text-gray-500 text-sm mb-4 truncate">{prod.description}</div>
-              </div>
-              <button className="mt-auto w-full bg-indigo-100 text-indigo-600 font-medium py-2 rounded-lg hover:bg-indigo-200 transition">Add to basket</button>
+              <h1 className="text-2xl text-black font-semibold italic flex items-center gap-2">
+                EcoFinds
+              </h1>
             </Link>
-          ))}
-        </section>
-      )}
-    </main>
+
+            {/* Right Side - Icons */}
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setShowSearch(true)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <Search className="w-5 h-5" />
+              </button>
+              <Link
+                href="/cart"
+                className="relative p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <ShoppingBag className="w-5 h-5" />
+              </Link>
+              <Link
+                href="/profile"
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <User className="w-5 h-5" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Mobile Menu */}
+          {isOpen && (
+            <div className="md:hidden px-2 pt-2 pb-3 space-y-1">
+              {navItems.map((item) => (
+                <div key={item.title} className="relative">
+                  {item.children ? (
+                    <div className="space-y-1">
+                      <button
+                        className={`
+                          w-full text-left px-3 py-2 rounded-md text-base font-medium
+                          text-gray-700 hover:text-gray-900 hover:bg-gray-50
+                        `}
+                      >
+                        {item.title}
+                      </button>
+                      <div className="pl-4">
+                        {item.children.map((child) => (
+                          <Link
+                            key={child.title}
+                            href={child.url}
+                            className={`
+                              block px-3 py-2 rounded-md text-base font-medium
+                              text-gray-700 hover:text-gray-900 hover:bg-gray-50
+                            `}
+                          >
+                            {child.title}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <Link
+                      href={item.url || "#"}
+                      className={`
+                        block px-3 py-2 rounded-md text-base font-medium
+                        text-gray-700 hover:text-gray-900 hover:bg-gray-50
+                      `}
+                    >
+                      {item.title}
+                    </Link>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Search Overlay */}
+        {showSearch && (
+          <div className="absolute top-full left-0 right-0 bg-white shadow-lg p-4 border-t">
+            <form onSubmit={handleSearch}>
+              <div className="relative max-w-2xl mx-auto">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search products..."
+                  className="w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                  autoFocus
+                />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchQuery("");
+                      setShowSearch(false);
+                    }}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                )}
+              </div>
+            </form>
+          </div>
+        )}
+      </nav>
+
+      {/* Hero Banner */}
+      <div className="hidden md:block w-full h-screen relative">
+        <div className="relative w-full h-full">
+          <Image
+            src="/homepage/hero.svg"
+            alt="Summer Sale Banner"
+            className="object-cover"
+            fill
+            priority
+          />
+        </div>
+      </div>
+      <div className="block md:hidden">
+        <Image
+          src="/homepage/hero.svg"
+          alt="Summer Sale Banner"
+          width={1920}
+          height={1080}
+          priority
+        />
+      </div>
+
+      {/* Product Grid */}
+      <section className="max-w-7xl mx-auto px-4 py-6 bg-white">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-4xl font-medium text-gray-900">Best Sellers</h2>
+          <Link
+            href="/shop-all"
+            className="text-sm text-gray-600 hover:underline flex items-center gap-1"
+          >
+            SHOP ALL →
+          </Link>
+        </div>
+        {loading ? (
+          <div className="text-center text-gray-500">Loading products...</div>
+        ) : error ? (
+          <div className="text-center text-red-500">{error}</div>
+        ) : (
+          <div className="grid grid-cols-2 gap-4 sm:gap-6 sm:grid-cols-3 lg:grid-cols-4">
+            {products.map((prod) => {
+              // Ensure price is a number for toFixed
+              const price = typeof prod.price === "number" ? prod.price : Number(prod.price) || 0;
+              return (
+                <Link
+                  key={prod.id}
+                  href={`/product/${prod.id}`}
+                  className="group cursor-pointer"
+                >
+                  <div className="flex flex-col space-y-2">
+                    <div className="relative aspect-[3/4] w-full bg-gray-100 overflow-hidden rounded-md">
+                      <Image
+                        src={prod.thumbnail || "/images/placeholder.png"}
+                        alt={prod.title}
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        fill
+                        sizes="(max-width: 768px) 40vw, 25vw"
+                      />
+                    </div>
+                    <div className="flex flex-col items-center space-y-1.5">
+                      <h3 className="text-xs text-gray-700 text-center font-normal line-clamp-2">
+                        {prod.title}
+                      </h3>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-gray-400 line-through text-xs">
+                          ₹{(price * 1.2).toFixed(2)}
+                        </span>
+                        <span className="text-gray-900 text-xs font-medium">
+                          ₹{price.toFixed(2)}
+                        </span>
+                      </div>
+                      <button className="mt-2 w-full bg-indigo-100 text-indigo-600 font-medium py-2 rounded-lg hover:bg-indigo-200 transition">
+                        Add to basket
+                      </button>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
+      {/* Banner Sections */}
+      <section className="w-full bg-white p-0 m-0">
+        <Link href="/collections/athleisure">
+          <div className="relative w-full h-[60vh] overflow-hidden rounded-none p-0 m-0">
+            <Image
+              src="/homepage/banner/banner1.svg"
+              alt="Athleisure Collection"
+              className="object-cover"
+              fill
+            />
+          </div>
+        </Link>
+      </section>
+      <section className="w-full bg-white p-0 m-0">
+        <Link href="/collections/athleisure">
+          <div className="relative w-full h-[60vh] overflow-hidden rounded-none p-0 m-0">
+            <Image
+              src="/homepage/banner/banner2.svg"
+              alt="Athleisure Collection"
+              className="object-cover"
+              fill
+            />
+          </div>
+        </Link>
+      </section>
+      <section className="w-full bg-white p-0 m-0">
+        <Link href="/collections/athleisure">
+          <div className="relative w-full h-[60vh] overflow-hidden rounded-none p-0 m-0">
+            <Image
+              src="/homepage/banner/banner3.svg"
+              alt="Athleisure Collection"
+              className="object-cover"
+              fill
+            />
+          </div>
+        </Link>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-white py-16 px-10 mt-10">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
+            {/* Newsletter Section */}
+            <div className="md:col-span-1">
+              <h1 className="text-2xl font-semibold italic mb-6">EcoFinds</h1>
+              <h3 className="text-gray-700 font-medium mb-2">
+                Sign up for exclusive offers and updates
+              </h3>
+              <p className="text-gray-600 text-sm mb-4">
+                Get the latest news and updates from our team.
+              </p>
+              <div className="flex">
+                <input
+                  type="email"
+                  placeholder="Enter Email Address"
+                  className="flex-1 px-4 py-2 bg-white rounded-l border-0 focus:outline-none text-sm"
+                />
+                <button className="px-4 py-2 bg-white rounded-r border-l border-gray-200">
+                  →
+                </button>
+              </div>
+            </div>
+            {/* About Column */}
+            <div className="md:col-span-1">
+              <h3 className="font-medium text-gray-700 mb-4">About</h3>
+              <ul className="space-y-2">
+                <li>
+                  <Link href="/about-us" className="text-gray-600 hover:text-gray-800 text-sm">
+                    About Us
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/terms" className="text-gray-600 hover:text-gray-800 text-sm">
+                    Terms And Conditions
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/privacy" className="text-gray-600 hover:text-gray-800 text-sm">
+                    Privacy Policy
+                  </Link>
+                </li>
+              </ul>
+            </div>
+            {/* Shop Column */}
+            <div className="md:col-span-1">
+              <h3 className="font-medium text-gray-700 mb-4">Shop</h3>
+              <ul className="space-y-2">
+                <li>
+                  <Link href="/best-sellers" className="text-gray-600 hover:text-gray-800 text-sm">
+                    Best Sellers
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/collections" className="text-gray-600 hover:text-gray-800 text-sm">
+                    Collections
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/locations" className="text-gray-600 hover:text-gray-800 text-sm">
+                    Locations
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/special-offers" className="text-gray-600 hover:text-gray-800 text-sm">
+                    Special Offers
+                  </Link>
+                </li>
+              </ul>
+            </div>
+            {/* Support Column */}
+            <div className="md:col-span-1">
+              <h3 className="font-medium text-gray-700 mb-4">Support</h3>
+              <ul className="space-y-2">
+                <li>
+                  <Link href="/return-policy" className="text-gray-600 hover:text-gray-800 text-sm">
+                    Return Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/shipping" className="text-gray-600 hover:text-gray-800 text-sm">
+                    Shipping
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/contact" className="text-gray-600 hover:text-gray-800 text-sm">
+                    Contact Us
+                  </Link>
+                </li>
+              </ul>
+            </div>
+            {/* Social Column */}
+            <div className="md:col-span-1">
+              <h3 className="font-medium text-gray-700 mb-4">Social</h3>
+              <ul className="space-y-2">
+                <li>
+                  <Link href="/instagram" className="text-gray-600 hover:text-gray-800 text-sm">
+                    Instagram
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/facebook" className="text-gray-600 hover:text-gray-800 text-sm">
+                    Facebook
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/youtube" className="text-gray-600 hover:text-gray-800 text-sm">
+                    Youtube
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/pinterest" className="text-gray-600 hover:text-gray-800 text-sm">
+                    Pinterest
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
   );
 }
