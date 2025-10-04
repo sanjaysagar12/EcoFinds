@@ -47,7 +47,7 @@ const navItems = [
   {
     title: "Shop",
     children: [
-      { title: "Best Sellers", url: "/products" },
+      { title: "Best Sellers", url: "/product" },
     ],
   },
   { title: "About", url: "/about" },
@@ -87,7 +87,7 @@ export default function HomePage() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      window.location.href = `/products?q=${encodeURIComponent(searchQuery.trim())}`;
+      window.location.href = `/product?q=${encodeURIComponent(searchQuery.trim())}`;
       setShowSearch(false);
       setSearchQuery("");
     }
