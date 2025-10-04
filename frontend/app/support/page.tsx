@@ -4,7 +4,6 @@ import axios from "axios";
 import { Corinthia } from "next/font/google";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import Image from "next/image";
 const corinthia = Corinthia({
   subsets: ["latin"],
   weight: ["400", "700"],
@@ -33,6 +32,7 @@ const ContactPage = () => {
       setSuccess(true);
       setFormData({ name: "", email: "", number: "", message: "" });
     } catch (err) {
+      console.error(err);
       setError("Failed to send message. Please try again.");
     } finally {
       setLoading(false);

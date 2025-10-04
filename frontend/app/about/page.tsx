@@ -77,7 +77,7 @@ const AboutPage = () => {
                 <p className="mb-6 leading-relaxed text-black">
                   Fashion can be both beautiful and responsible. Frustrated by the
                   waste and harm caused by fast fashion, we set out to create a
-                  platform where style meets sustainability. From day one, we've
+                  platform where style meets sustainability. From day one, we&apos;ve
                   worked with eco-conscious brands that share our vision of a
                   greener, fairer world. Our journey is rooted in a passion for
                   making a difference—not just through the clothes we offer, but
@@ -191,7 +191,7 @@ const AboutPage = () => {
                   </div>
 
                   <p className="leading-relaxed text-black">
-                    We at Prixsy strive to offer stylish clothing that doesn't
+                    We at Prixsy strive to offer stylish clothing that doesn&apos;t
                     compromise the planet. Every purchase supports fair labor,
                     sustainable materials, and environmentally conscious
                     production methods. Together, we can redefine fashion by
