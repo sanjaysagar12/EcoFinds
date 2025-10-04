@@ -155,8 +155,9 @@ export default function HomePage() {
       </section>
 
       {/* Banner Sections */}
-      <section className="w-full bg-white p-0 m-0">
-        <Link href="/collections/athleisure">
+      <div className="w-full bg-white p-0 m-0">
+        {/* Desktop banners (cover, cropped to fill) */}
+        <div className="hidden md:block space-y-6">
           <div className="relative w-full h-[60vh] overflow-hidden rounded-none p-0 m-0">
             <Image
               src="/homepage/banner/banner1.svg"
@@ -165,10 +166,6 @@ export default function HomePage() {
               fill
             />
           </div>
-        </Link>
-      </section>
-      <section className="w-full bg-white p-0 m-0">
-        <Link href="/collections/athleisure">
           <div className="relative w-full h-[60vh] overflow-hidden rounded-none p-0 m-0">
             <Image
               src="/homepage/banner/banner2.svg"
@@ -177,10 +174,6 @@ export default function HomePage() {
               fill
             />
           </div>
-        </Link>
-      </section>
-      <section className="w-full bg-white p-0 m-0">
-        <Link href="/collections/athleisure">
           <div className="relative w-full h-[60vh] overflow-hidden rounded-none p-0 m-0">
             <Image
               src="/homepage/banner/banner3.svg"
@@ -189,8 +182,39 @@ export default function HomePage() {
               fill
             />
           </div>
-        </Link>
-      </section>
+        </div>
+
+        {/* Mobile banners (fully visible, no cropping) */}
+        <div className="block md:hidden space-y-4">
+          <div className="w-full">
+            <Image
+              src="/homepage/banner/banner1.svg"
+              alt="Athleisure Collection"
+              width={1200}
+              height={480}
+              className="object-contain w-full h-auto"
+            />
+          </div>
+          <div className="w-full">
+            <Image
+              src="/homepage/banner/banner2.svg"
+              alt="Athleisure Collection"
+              width={1200}
+              height={480}
+              className="object-contain w-full h-auto"
+            />
+          </div>
+          <div className="w-full">
+            <Image
+              src="/homepage/banner/banner3.svg"
+              alt="Athleisure Collection"
+              width={1200}
+              height={480}
+              className="object-contain w-full h-auto"
+            />
+          </div>
+        </div>
+      </div>
 
       {/* Footer */}
       <footer className="bg-white py-16 px-10 mt-10">
