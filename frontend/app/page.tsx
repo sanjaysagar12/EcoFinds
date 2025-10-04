@@ -106,183 +106,129 @@ export default function HomePage() {
   }, [showSearch]);
 
   return (
-    <div className="bg-white">
-      {/* Top Bar */}
-      <div className="bg-white text-gray-700 text-sm py-2">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          FREE DELIVERY in INDIA for online payments
-        </div>
-      </div>
-
+    <div className="bg-white text-black">
       {/* Navbar */}
       <nav className="bg-white shadow-lg sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            {/* Left Side */}
-            <div className="flex items-center">
-              <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="md:hidden p-2 rounded-md text-gray-700 hover:text-gray-900"
-              >
-                {isOpen ? <X size={24} /> : <Menu size={24} />}
-              </button>
-              {/* Desktop Navigation */}
-              <div className="hidden md:flex items-center space-x-4 ml-4">
-                {navItems.map((item) => (
-                  <div key={item.title} className="relative group">
-                    {item.children ? (
-                      <>
-                        <button
-                          className={`
+        <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
+          <div className="flex items-center gap-2">
+            <Image src="/logo.jpg" alt="EcoFinds Logo" width={40} height={40} className="rounded-xl" />
+            <span className="text-2xl font-bold text-black">EcoFinds</span>
+          </div>
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-4 ml-4">
+            {navItems.map((item) => (
+              <div key={item.title} className="relative group">
+                {item.children ? (
+                  <>
+                    <button
+                      className={`
                             px-3 py-2 rounded-md text-sm font-medium
                             transition-colors duration-200
                             text-gray-700 hover:text-gray-900
                           `}
-                        >
-                          {item.title}
-                        </button>
-                        <div className="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                          <div className="py-1">
-                            {item.children.map((child) => (
-                              <Link
-                                key={child.title}
-                                href={child.url}
-                                className={`
-                                  block px-4 py-2 text-sm
-                                  text-gray-700 hover:bg-gray-100
-                                `}
-                              >
-                                {child.title}
-                              </Link>
-                            ))}
-                          </div>
-                        </div>
-                      </>
-                    ) : (
-                      <Link
-                        href={item.url || "#"}
-                        className={`
-                          px-3 py-2 rounded-md text-sm font-medium
-                          transition-colors duration-200
-                          text-gray-700 hover:text-gray-900
-                        `}
-                      >
-                        {item.title}
-                      </Link>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Center - Logo */}
-            <Link
-              href="/"
-              className="absolute left-1/2 transform -translate-x-1/2"
-            >
-              <h1 className="text-2xl text-black font-semibold italic flex items-center gap-2">
-                EcoFinds
-              </h1>
-            </Link>
-
-            {/* Right Side - Icons */}
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={() => setShowSearch(true)}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              >
-                <Search className="w-5 h-5" />
-              </button>
-              <Link
-                href="/cart"
-                className="relative p-2 hover:bg-gray-100 rounded-full transition-colors"
-              >
-                <ShoppingBag className="w-5 h-5" />
-              </Link>
-              <Link
-                href="/profile"
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              >
-                <User className="w-5 h-5" />
-              </Link>
-            </div>
-          </div>
-
-          {/* Mobile Menu */}
-          {isOpen && (
-            <div className="md:hidden px-2 pt-2 pb-3 space-y-1">
-              {navItems.map((item) => (
-                <div key={item.title} className="relative">
-                  {item.children ? (
-                    <div className="space-y-1">
-                      <button
-                        className={`
-                          w-full text-left px-3 py-2 rounded-md text-base font-medium
-                          text-gray-700 hover:text-gray-900 hover:bg-gray-50
-                        `}
-                      >
-                        {item.title}
-                      </button>
-                      <div className="pl-4">
+                    >
+                      {item.title}
+                    </button>
+                    <div className="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                      <div className="py-1">
                         {item.children.map((child) => (
                           <Link
                             key={child.title}
                             href={child.url}
                             className={`
-                              block px-3 py-2 rounded-md text-base font-medium
-                              text-gray-700 hover:text-gray-900 hover:bg-gray-50
-                            `}
+                                  block px-4 py-2 text-sm
+                                  text-gray-700 hover:bg-gray-100
+                                `}
                           >
                             {child.title}
                           </Link>
                         ))}
                       </div>
                     </div>
-                  ) : (
-                    <Link
-                      href={item.url || "#"}
+                  </>
+                ) : (
+                  <Link
+                    href={item.url || "#"}
+                    className={`
+                          px-3 py-2 rounded-md text-sm font-medium
+                          transition-colors duration-200
+                          text-gray-700 hover:text-gray-900
+                        `}
+                  >
+                    {item.title}
+                  </Link>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Right Side - Icons */}
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => setShowSearch(true)}
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            >
+              <Search className="w-5 h-5" />
+            </button>
+            <Link
+              href="/cart"
+              className="relative p-2 hover:bg-gray-100 rounded-full transition-colors"
+            >
+              <ShoppingBag className="w-5 h-5" />
+            </Link>
+            <Link
+              href="/profile"
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            >
+              <User className="w-5 h-5" />
+            </Link>
+          </div>
+        </div>
+
+        {/* Mobile Menu */}
+        {isOpen && (
+          <div className="md:hidden px-2 pt-2 pb-3 space-y-1">
+            {navItems.map((item) => (
+              <div key={item.title} className="relative">
+                {item.children ? (
+                  <div className="space-y-1">
+                    <button
                       className={`
+                          w-full text-left px-3 py-2 rounded-md text-base font-medium
+                          text-gray-700 hover:text-gray-900 hover:bg-gray-50
+                        `}
+                    >
+                      {item.title}
+                    </button>
+                    <div className="pl-4">
+                      {item.children.map((child) => (
+                        <Link
+                          key={child.title}
+                          href={child.url}
+                          className={`
+                              block px-3 py-2 rounded-md text-base font-medium
+                              text-gray-700 hover:text-gray-900 hover:bg-gray-50
+                            `}
+                        >
+                          {child.title}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <Link
+                    href={item.url || "#"}
+                    className={`
                         block px-3 py-2 rounded-md text-base font-medium
                         text-gray-700 hover:text-gray-900 hover:bg-gray-50
                       `}
-                    >
-                      {item.title}
-                    </Link>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Search Overlay */}
-        {showSearch && (
-          <div className="absolute top-full left-0 right-0 bg-white shadow-lg p-4 border-t">
-            <form onSubmit={handleSearch}>
-              <div className="relative max-w-2xl mx-auto">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search products..."
-                  className="w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
-                  autoFocus
-                />
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSearchQuery("");
-                      setShowSearch(false);
-                    }}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   >
-                    <X className="w-5 h-5" />
-                  </button>
+                    {item.title}
+                  </Link>
                 )}
               </div>
-            </form>
+            ))}
           </div>
         )}
       </nav>
@@ -312,7 +258,7 @@ export default function HomePage() {
       {/* Product Grid */}
       <section className="max-w-7xl mx-auto px-4 py-6 bg-white">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-4xl font-medium text-gray-900">Best Sellers</h2>
+          <h2 className="text-4xl font-medium text-black">Best Sellers</h2>
           <Link
             href="/shop-all"
             className="text-sm text-gray-600 hover:underline flex items-center gap-1"
@@ -413,7 +359,7 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
             {/* Newsletter Section */}
             <div className="md:col-span-1">
-              <h1 className="text-2xl font-semibold italic mb-6">EcoFinds</h1>
+              <h1 className="text-2xl font-semibold italic mb-6 text-black">EcoFinds</h1>
               <h3 className="text-gray-700 font-medium mb-2">
                 Sign up for exclusive offers and updates
               </h3>
