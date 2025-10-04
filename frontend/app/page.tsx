@@ -3,7 +3,7 @@ import { API } from '@/lib/apt';
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Search, ShoppingBag, User, Menu, X } from "lucide-react";
+import Navbar from "./components/Navbar"; // added
 
 // Product type based on schema.md
 interface Product {
@@ -43,33 +43,17 @@ interface Product {
   reviewCount?: number;
 }
 
-const navItems = [
-  {
-    title: "Shop",
-    children: [
-      { title: "Best Sellers", url: "/product" },
-    ],
-  },
-  { title: "About", url: "/about" },
-  { title: "Support", url: "/support" },
-];
-
 export default function HomePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Navbar state for mobile menu and search
-  const [isOpen, setIsOpen] = useState(false);
-  const [showSearch, setShowSearch] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     async function fetchProducts() {
       setLoading(true);
       setError(null);
       try {
-  const res = await fetch(API.PRODUCTS);
+        const res = await fetch(API.PRODUCTS);
         if (!res.ok) throw new Error("Failed to fetch products");
         const data = await res.json();
         setProducts(data.products || []);
@@ -83,155 +67,10 @@ export default function HomePage() {
     fetchProducts();
   }, []);
 
-  // Handle search submit
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      window.location.href = `/product?q=${encodeURIComponent(searchQuery.trim())}`;
-      setShowSearch(false);
-      setSearchQuery("");
-    }
-  };
-
-  // Close popups when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      if (showSearch && !target.closest("form")) {
-        setShowSearch(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [showSearch]);
-
   return (
     <div className="bg-white text-black">
-      {/* Navbar */}
-      <nav className="bg-white shadow-lg sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
-          <div className="flex items-center gap-2">
-            <Image src="/logo.jpg" alt="EcoFinds Logo" width={40} height={40} className="rounded-xl" />
-            <span className="text-2xl font-bold text-black">EcoFinds</span>
-          </div>
-
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-4 ml-4">
-            {navItems.map((item) => (
-              <div key={item.title} className="relative group">
-                {item.children ? (
-                  <>
-                    <button
-                      className={`
-                            px-3 py-2 rounded-md text-sm font-medium
-                            transition-colors duration-200
-                            text-gray-700 hover:text-gray-900
-                          `}
-                    >
-                      {item.title}
-                    </button>
-                    <div className="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                      <div className="py-1">
-                        {item.children.map((child) => (
-                          <Link
-                            key={child.title}
-                            href={child.url}
-                            className={`
-                                  block px-4 py-2 text-sm
-                                  text-gray-700 hover:bg-gray-100
-                                `}
-                          >
-                            {child.title}
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  <Link
-                    href={item.url || "#"}
-                    className={`
-                          px-3 py-2 rounded-md text-sm font-medium
-                          transition-colors duration-200
-                          text-gray-700 hover:text-gray-900
-                        `}
-                  >
-                    {item.title}
-                  </Link>
-                )}
-              </div>
-            ))}
-          </div>
-
-          {/* Right Side - Icons */}
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={() => setShowSearch(true)}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-            >
-              <Search className="w-5 h-5" />
-            </button>
-            <Link
-              href="/cart"
-              className="relative p-2 hover:bg-gray-100 rounded-full transition-colors"
-            >
-              <ShoppingBag className="w-5 h-5" />
-            </Link>
-            <Link
-              href="/profile"
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-            >
-              <User className="w-5 h-5" />
-            </Link>
-          </div>
-        </div>
-
-        {/* Mobile Menu */}
-        {isOpen && (
-          <div className="md:hidden px-2 pt-2 pb-3 space-y-1">
-            {navItems.map((item) => (
-              <div key={item.title} className="relative">
-                {item.children ? (
-                  <div className="space-y-1">
-                    <button
-                      className={`
-                          w-full text-left px-3 py-2 rounded-md text-base font-medium
-                          text-gray-700 hover:text-gray-900 hover:bg-gray-50
-                        `}
-                    >
-                      {item.title}
-                    </button>
-                    <div className="pl-4">
-                      {item.children.map((child) => (
-                        <Link
-                          key={child.title}
-                          href={child.url}
-                          className={`
-                              block px-3 py-2 rounded-md text-base font-medium
-                              text-gray-700 hover:text-gray-900 hover:bg-gray-50
-                            `}
-                        >
-                          {child.title}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <Link
-                    href={item.url || "#"}
-                    className={`
-                        block px-3 py-2 rounded-md text-base font-medium
-                        text-gray-700 hover:text-gray-900 hover:bg-gray-50
-                      `}
-                  >
-                    {item.title}
-                  </Link>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </nav>
+      {/* Navbar component */}
+      <Navbar />
 
       {/* Hero Banner */}
       <div className="hidden md:block w-full h-screen relative">
