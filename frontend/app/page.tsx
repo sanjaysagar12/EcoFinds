@@ -99,7 +99,7 @@ export default function HomePage() {
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-4xl font-medium text-black">Best Sellers</h2>
           <Link
-            href="/shop-all"
+            href="/product"
             className="text-sm text-gray-600 hover:underline flex items-center gap-1"
           >
             SHOP ALL →

@@ -203,154 +203,173 @@ export default function ProductsPage() {
           </div>
         </div>
 
-        {/* Filter Component */}
-        <div className="mb-8">
-          <ProductFilter onFilterChange={handleFilterChange} isLoading={isLoading} />
-        </div>
-
-        {/* Loading State */}
-        {isLoading && (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading products...</p>
+        {/* NEW: Sidebar + Content layout */}
+        <div className="mt-8">
+          {/* Mobile: filter stacked above products */}
+          <div className="block md:hidden mb-6">
+            <ProductFilter onFilterChange={handleFilterChange} isLoading={isLoading} />
           </div>
-        )}
 
-        {/* Error State */}
-        {error && (
-          <div className="text-center py-12">
-            <p className="text-red-600">{error}</p>
-            <button
-              onClick={() => fetchProducts(pagination.page)}
-              className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
-            >
-              Try Again
-            </button>
-          </div>
-        )}
+          {/* Desktop layout - static sidebar (always visible) */}
+          <div className="hidden md:block">
+            <div className="md:grid md:grid-cols-4 gap-6">
+              {/* Static Sidebar (always visible on desktop) */}
+              <aside className="md:col-span-1">
+                <div className="sticky top-24">
+                  {/* Render ProductFilter directly (no extra external card wrapper) */}
+                  <ProductFilter onFilterChange={handleFilterChange} isLoading={isLoading} />
+                </div>
+              </aside>
 
-        {/* Products Grid */}
-        {!isLoading && !error && (
-          <>
-            {products.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-gray-600">No products found matching your criteria.</p>
-                <p className="text-sm text-gray-500 mt-2">Try adjusting your filters or search terms.</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {products.map((product) => (
-                  <div
-                    key={product.id}
-                    className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
-                  >
-                    <Link href={`/product/${product.id}`}>
-                      <div className="aspect-square relative bg-gray-100">
-                        {product.thumbnail ? (
-                          <Image
-                            src={product.thumbnail}
-                            alt={product.title}
-                            fill
-                            className="object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <svg className="h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                          </div>
-                        )}
-                        
-                        {/* Condition Badge */}
-                        <div className="absolute top-2 left-2">
-                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                            product.condition === 'New' 
-                              ? 'bg-green-100 text-green-800'
-                              : product.condition === 'Like New'
-                              ? 'bg-blue-100 text-blue-800'
-                              : 'bg-orange-100 text-orange-800'
-                          }`}>
-                            {product.condition}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="p-4">
-                        <h3 className="text-lg font-medium text-gray-900 mb-1 line-clamp-2">
-                          {product.title}
-                        </h3>
-                        
-                        <p className="text-sm text-gray-600 mb-2">{product.category}</p>
-                        
-                        {product.brand && (
-                          <p className="text-sm text-gray-500 mb-2">Brand: {product.brand}</p>
-                        )}
-
-                        <div className="flex items-center mb-2">
-                          <div className="flex items-center">
-                            {getRatingStars(product.averageRating)}
-                          </div>
-                          <span className="ml-2 text-sm text-gray-600">
-                            ({product.reviewCount} reviews)
-                          </span>
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                          <span className="text-xl font-bold text-gray-900">
-                            {formatPrice(product.price)}
-                          </span>
-                          
-                          <div className="text-sm text-gray-500">
-                            Qty: {product.quantity}
-                          </div>
-                        </div>
-
-                        <div className="mt-2 text-xs text-gray-500">
-                          Sold by {product.seller.name}
-                        </div>
-                      </div>
-                    </Link>
+              {/* Main content (span 3 cols) */}
+              <main className="md:col-span-3">
+                {/* Loading State */}
+                {isLoading && (
+                  <div className="text-center py-12">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+                    <p className="mt-4 text-gray-600">Loading products...</p>
                   </div>
-                ))}
-              </div>
-            )}
+                )}
 
-            {/* Pagination */}
-            {pagination.totalPages > 1 && (
-              <div className="mt-8 flex items-center justify-center space-x-2">
-                <button
-                  onClick={() => handlePageChange(pagination.page - 1)}
-                  disabled={!pagination.hasPrev}
-                  className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Previous
-                </button>
+                {/* Error State */}
+                {error && (
+                  <div className="text-center py-12">
+                    <p className="text-red-600">{error}</p>
+                    <button
+                      onClick={() => fetchProducts(pagination.page)}
+                      className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+                    >
+                      Try Again
+                    </button>
+                  </div>
+                )}
 
-                {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((page) => (
-                  <button
-                    key={page}
-                    onClick={() => handlePageChange(page)}
-                    className={`px-3 py-2 text-sm font-medium rounded-md ${
-                      page === pagination.page
-                        ? 'bg-indigo-600 text-white'
-                        : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
-                    }`}
-                  >
-                    {page}
-                  </button>
-                ))}
+                {/* Products Grid */}
+                {!isLoading && !error && (
+                  <>
+                    {products.length === 0 ? (
+                      <div className="text-center py-12">
+                        <p className="text-gray-600">No products found matching your criteria.</p>
+                        <p className="text-sm text-gray-500 mt-2">Try adjusting your filters or search terms.</p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        {products.map((product) => (
+                          <div
+                            key={product.id}
+                            className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
+                          >
+                            <Link href={`/product/${product.id}`}>
+                              <div className="aspect-square relative bg-gray-100">
+                                {product.thumbnail ? (
+                                  <Image
+                                    src={product.thumbnail}
+                                    alt={product.title}
+                                    fill
+                                    className="object-cover"
+                                  />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center">
+                                    <svg className="h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                  </div>
+                                )}
+                                
+                                {/* Condition Badge */}
+                                <div className="absolute top-2 left-2">
+                                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                                    product.condition === 'New' 
+                                      ? 'bg-green-100 text-green-800'
+                                      : product.condition === 'Like New'
+                                      ? 'bg-blue-100 text-blue-800'
+                                      : 'bg-orange-100 text-orange-800'
+                                  }`}>
+                                    {product.condition}
+                                  </span>
+                                </div>
+                              </div>
 
-                <button
-                  onClick={() => handlePageChange(pagination.page + 1)}
-                  disabled={!pagination.hasNext}
-                  className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Next
-                </button>
-              </div>
-            )}
-          </>
-        )}
+                              <div className="p-4">
+                                <h3 className="text-lg font-medium text-gray-900 mb-1 line-clamp-2">
+                                  {product.title}
+                                </h3>
+                                
+                                <p className="text-sm text-gray-600 mb-2">{product.category}</p>
+                                
+                                {product.brand && (
+                                  <p className="text-sm text-gray-500 mb-2">Brand: {product.brand}</p>
+                                )}
+
+                                <div className="flex items-center mb-2">
+                                  <div className="flex items-center">
+                                    {getRatingStars(product.averageRating)}
+                                  </div>
+                                  <span className="ml-2 text-sm text-gray-600">
+                                    ({product.reviewCount} reviews)
+                                  </span>
+                                </div>
+
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xl font-bold text-gray-900">
+                                    {formatPrice(product.price)}
+                                  </span>
+                                  
+                                  <div className="text-sm text-gray-500">
+                                    Qty: {product.quantity}
+                                  </div>
+                                </div>
+
+                                <div className="mt-2 text-xs text-gray-500">
+                                  Sold by {product.seller.name}
+                                </div>
+                              </div>
+                            </Link>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Pagination */}
+                    {pagination.totalPages > 1 && (
+                      <div className="mt-8 flex items-center justify-center space-x-2">
+                        <button
+                          onClick={() => handlePageChange(pagination.page - 1)}
+                          disabled={!pagination.hasPrev}
+                          className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Previous
+                        </button>
+
+                        {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((page) => (
+                          <button
+                            key={page}
+                            onClick={() => handlePageChange(page)}
+                            className={`px-3 py-2 text-sm font-medium rounded-md ${
+                              page === pagination.page
+                                ? 'bg-indigo-600 text-white'
+                                : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+                            }`}
+                          >
+                            {page}
+                          </button>
+                        ))}
+
+                        <button
+                          onClick={() => handlePageChange(pagination.page + 1)}
+                          disabled={!pagination.hasNext}
+                          className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Next
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
+              </main>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
