@@ -6,7 +6,7 @@ import { Search, ShoppingBag, User, Menu, X } from "lucide-react";
 const navItems = [
   {
     title: "Shop",
-    children: [{ title: "Best Sellers", url: "/products" }],
+    children: [{ title: "Best Sellers", url: "/product" }],
   },
   { title: "About", url: "/about" },
   { title: "Support", url: "/support" },

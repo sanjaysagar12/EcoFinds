@@ -431,7 +431,7 @@ export default function CreateProductPage() {
 
                 <div>
                   <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">
-                    Price ($) *
+                    Price (₹) *
                   </label>
                   <input
                     type="number"
@@ -443,7 +443,7 @@ export default function CreateProductPage() {
                     min="0"
                     step="0.01"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 placeholder-gray-500 text-gray-900"
-                    placeholder="Enter price (e.g., 29.99)"
+                    placeholder="Enter price (e.g., 2999.00)"
                   />
                 </div>
 
